@@ -1,0 +1,4003 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="format-detection" content="telephone=no">
+    <title>LiLi影子跟读完美版 - 专业语言学习工具</title>
+    <!-- 使用国内CDN，提高访问速度 -->
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.cnpmjs.org/css2?family=Roboto:wght@400;500;700&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- 备用字体，防止Google Fonts无法访问 -->
+    <style>
+        @import url('https://fonts.googleapis.cnpmjs.org/css2?family=Roboto:wght@400;500;700&family=Noto+Sans+SC:wght@400;500;700&display=swap');
+        
+        /* 备用图标字体，防止CDN访问失败 */
+        @font-face {
+            font-family: 'FallbackIcons';
+            src: local('Arial');
+        }
+        
+        /* 备用图标样式 */
+        .fas.fa-play::before { content: '▶'; }
+        .fas.fa-pause::before { content: '⏸'; }
+        .fas.fa-step-backward::before { content: '⏮'; }
+        .fas.fa-step-forward::before { content: '⏭'; }
+        .fas.fa-repeat::before { content: '🔁'; }
+        .fas.fa-closed-captioning::before { content: '📺'; }
+        .fas.fa-video::before { content: '🎥'; }
+        
+        /* 备用字体设置 */
+        body {
+            font-family: 'Roboto', 'Noto Sans SC', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+        }
+        
+        /* 备用方案样式 */
+        .fallback-icons .fas {
+            font-family: 'FallbackIcons', Arial, sans-serif;
+        }
+        
+        .fallback-fonts {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif !important;
+        }
+        
+        /* 网络状态指示器 */
+        .network-status {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            z-index: 1000;
+            opacity: 0.8;
+            transition: opacity 0.3s;
+        }
+        
+        .network-status.online {
+            background: rgba(46, 196, 182, 0.8);
+            color: white;
+        }
+        
+        .network-status.offline {
+            background: rgba(230, 57, 70, 0.8);
+            color: white;
+        }
+        
+        .network-status.fallback {
+            background: rgba(255, 159, 28, 0.8);
+            color: white;
+        }
+    </style>
+    <style>
+        :root {
+            --primary: #4361ee;
+            --secondary: #3f37c9;
+            --accent: #4cc9f0;
+            --dark: #1d3557;
+            --light: #f1faee;
+            --success: #2ec4b6;
+            --warning: #ff9f1c;
+            --danger: #e63946;
+            --text: #333;
+            --subtitle-eng: #FFD700;
+            --subtitle-chi: #4cc9f0;
+            --subtitle-size-base: 1.6rem;
+            --subtitle-size-eng: 1.7rem;
+            --subtitle-size-chi: 1.6rem;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Roboto', 'Noto Sans SC', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #1a2a6c, #2a3c6c, #3a4c6c);
+            color: var(--light);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-attachment: fixed;
+        }
+
+        .container {
+            max-width: 1000px;
+            width: 100%;
+            background: rgba(29, 53, 87, 0.85);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+            margin: 20px auto;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            position: relative;
+            overflow: hidden;
+        }
+
+        header {
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            padding: 20px;
+            text-align: center;
+            position: relative;
+            border-bottom: 3px solid var(--accent);
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            margin: 0;
+            position: relative;
+        }
+
+        .tagline {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            margin-top: 5px;
+            letter-spacing: 1px;
+        }
+
+        .main-content {
+            padding: 25px;
+        }
+
+        .video-container {
+            position: relative;
+            width: 100%;
+            padding-top: 56.25%; /* 16:9 Aspect Ratio */
+            background: #000;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+            margin-bottom: 25px;
+        }
+
+        .video-player {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #111;
+            border: none;
+        }
+
+        .subtitle-container {
+            position: absolute;
+            bottom: 3px;
+            left: 0;
+            width: 100%;
+            text-align: center;
+            z-index: 10;
+            padding: 0 15px;
+            transition: opacity 0.3s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 2px;
+            pointer-events: none;
+            max-height: 40%;
+            overflow: visible;
+            box-sizing: border-box;
+        }
+
+        .subtitle {
+            font-size: var(--subtitle-size-base);
+            font-weight: 700;
+            text-shadow: 
+                -1px -1px 0 #000,  
+                1px -1px 0 #000,
+                -1px 1px 0 #000,
+                1px 1px 0 #000,
+                0 0 3px rgba(0, 0, 0, 0.8);
+            line-height: 1.3;
+            margin: 0;
+            padding: 3px 10px;
+            display: flex;
+            border-radius: 4px;
+            background: transparent;
+            transition: all 0.3s ease;
+            width: auto;
+            max-width: 95%;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            word-break: break-word;
+            max-height: none;
+            overflow: visible;
+            white-space: normal;
+            text-overflow: clip;
+            hyphens: auto;
+            cursor: pointer;
+            box-sizing: border-box;
+        }
+
+        /* 单词点击样式 */
+        .word-clickable {
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border-radius: 3px;
+            padding: 1px 2px;
+            margin: 0 1px;
+        }
+
+        .word-clickable:hover {
+            background: rgba(255, 215, 0, 0.3);
+            color: #FFD700;
+            text-shadow: 0 0 5px rgba(255, 215, 0, 0.8);
+        }
+
+        .word-clickable.clicked {
+            background: rgba(76, 201, 240, 0.4);
+            color: #4cc9f0;
+            text-shadow: 0 0 8px rgba(76, 201, 240, 0.8);
+        }
+
+        /* 单词释义弹窗 */
+        .word-popup {
+            position: fixed;
+            background: rgba(29, 53, 87, 0.95);
+            border: 2px solid var(--accent);
+            border-radius: 12px;
+            padding: 15px;
+            max-width: 350px;
+            min-width: 250px;
+            z-index: 10000;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            color: var(--light);
+            font-size: 0.9rem;
+            line-height: 1.4;
+            opacity: 0;
+            transform: scale(0.8);
+            transition: all 0.3s ease;
+            pointer-events: none;
+        }
+
+        .word-popup.show {
+            opacity: 1;
+            transform: scale(1);
+            pointer-events: auto;
+        }
+
+        .word-popup-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid rgba(76, 201, 240, 0.3);
+        }
+
+        .word-popup-word {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--accent);
+        }
+
+        .word-popup-close {
+            background: none;
+            border: none;
+            color: var(--light);
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: 2px;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .word-popup-close:hover {
+            background: rgba(230, 57, 70, 0.3);
+            color: var(--danger);
+        }
+
+        .word-popup-phonetic {
+            font-size: 0.8rem;
+            color: var(--warning);
+            margin-bottom: 8px;
+            font-style: italic;
+        }
+
+        .word-popup-meaning {
+            margin-bottom: 10px;
+            color: var(--light);
+        }
+
+        .word-popup-exam-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-top: 8px;
+        }
+
+        .exam-tag {
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .exam-tag.cet4 {
+            background: rgba(46, 196, 182, 0.3);
+            color: #2ec4b6;
+            border: 1px solid rgba(46, 196, 182, 0.5);
+        }
+
+        .exam-tag.cet6 {
+            background: rgba(255, 159, 28, 0.3);
+            color: #ff9f1c;
+            border: 1px solid rgba(255, 159, 28, 0.5);
+        }
+
+        .exam-tag.cet8 {
+            background: rgba(230, 57, 70, 0.3);
+            color: #e63946;
+            border: 1px solid rgba(230, 57, 70, 0.5);
+        }
+
+        .exam-tag.ielts {
+            background: rgba(67, 97, 238, 0.3);
+            color: #4361ee;
+            border: 1px solid rgba(67, 97, 238, 0.5);
+        }
+
+        .exam-tag.toefl {
+            background: rgba(76, 201, 240, 0.3);
+            color: #4cc9f0;
+            border: 1px solid rgba(76, 201, 240, 0.5);
+        }
+
+        .exam-tag.gre {
+            background: rgba(147, 112, 219, 0.3);
+            color: #9370db;
+            border: 1px solid rgba(147, 112, 219, 0.5);
+        }
+
+        .exam-tag.gaokao {
+            background: rgba(255, 105, 180, 0.3);
+            color: #ff69b4;
+            border: 1px solid rgba(255, 105, 180, 0.5);
+        }
+
+        .exam-tag.kaoyan {
+            background: rgba(255, 20, 147, 0.3);
+            color: #ff1493;
+            border: 1px solid rgba(255, 20, 147, 0.5);
+        }
+
+        .word-popup-example {
+            margin-top: 8px;
+            padding: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 6px;
+            font-style: italic;
+            font-size: 0.85rem;
+        }
+
+        .word-popup-example-title {
+            color: var(--accent);
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        /* 移动端弹窗优化 */
+        @media (max-width: 768px) {
+            .word-popup {
+                max-width: 90vw;
+                min-width: 280px;
+                left: 5vw !important;
+                right: 5vw !important;
+                transform: translateX(0) !important;
+            }
+        }
+
+        .english {
+            color: var(--subtitle-eng);
+            font-size: calc(var(--subtitle-size-eng) + 2px);
+            order: 1 !important;
+            flex-shrink: 0;
+        }
+
+        .chinese {
+            color: var(--subtitle-chi);
+            font-size: var(--subtitle-size-chi);
+            order: 2 !important;
+            flex-shrink: 0;
+        }
+
+        .controls {
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .primary-controls {
+            display: flex;
+            justify-content: center;
+            gap: 25px;
+            margin-bottom: 20px;
+        }
+
+        .secondary-controls {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 12px 20px;
+            border-radius: 50px;
+        }
+
+        .btn {
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            font-size: 1.4rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
+        }
+
+        .btn:active {
+            transform: translateY(1px);
+        }
+
+        .btn-large {
+            width: 70px;
+            height: 70px;
+            font-size: 1.8rem;
+        }
+
+        .toggle-btn {
+            background: rgba(67, 97, 238, 0.2);
+            color: var(--accent);
+            border: 2px solid var(--accent);
+        }
+
+        .toggle-btn.active {
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            color: white;
+        }
+
+        .counter {
+            font-size: 1.2rem;
+            font-weight: 700;
+            background: var(--success);
+            color: white;
+            border-radius: 20px;
+            padding: 8px 15px;
+            min-width: 100px;
+            text-align: center;
+        }
+
+        .speed-control {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .speed-btn {
+            padding: 8px 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            color: var(--light);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .speed-btn:hover {
+            background: rgba(76, 201, 240, 0.3);
+        }
+
+        .speed-btn.active {
+            background: var(--accent);
+            color: var(--dark);
+            font-weight: 700;
+        }
+
+        /* 手机端倍速按钮 */
+        .mobile-speed-btn {
+            display: none;
+            background: rgba(67, 97, 238, 0.2);
+            color: var(--accent);
+            border: 2px solid var(--accent);
+            border-radius: 50%;
+            width: 45px;
+            height: 45px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            margin-left: 10px;
+        }
+
+        .mobile-speed-btn:hover {
+            background: rgba(76, 201, 240, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .mobile-speed-btn.active {
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            color: white;
+        }
+
+        /* 倍速选择弹窗 */
+        .speed-popup {
+            position: fixed;
+            background: rgba(29, 53, 87, 0.95);
+            border: 2px solid var(--accent);
+            border-radius: 12px;
+            padding: 0;
+            max-width: 300px;
+            min-width: 250px;
+            z-index: 10000;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            color: var(--light);
+            opacity: 0;
+            transform: scale(0.8);
+            transition: all 0.3s ease;
+            pointer-events: none;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.8);
+        }
+
+        .speed-popup.show {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+            pointer-events: auto;
+        }
+
+        .speed-popup-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding: 15px 20px 0 20px;
+            border-bottom: 1px solid rgba(76, 201, 240, 0.3);
+        }
+
+        .speed-popup-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--accent);
+        }
+
+        .speed-popup-close {
+            background: none;
+            border: none;
+            color: var(--light);
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 2px;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .speed-popup-close:hover {
+            background: rgba(230, 57, 70, 0.3);
+            color: var(--danger);
+        }
+
+        .speed-popup-content {
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .speed-popup-btn {
+            padding: 12px 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            color: var(--light);
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 1rem;
+            font-weight: 500;
+            text-align: center;
+        }
+
+        .speed-popup-btn:hover {
+            background: rgba(76, 201, 240, 0.3);
+            border-color: var(--accent);
+        }
+
+        .speed-popup-btn.active {
+            background: var(--accent);
+            color: var(--dark);
+            font-weight: 700;
+            border-color: var(--accent);
+        }
+
+        .file-upload {
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 15px;
+        }
+
+        .upload-title {
+            text-align: center;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+            color: var(--accent);
+        }
+
+        .upload-options {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .upload-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 25px;
+            border-radius: 50px;
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--light);
+            border: 2px solid var(--accent);
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 500;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .upload-btn:hover {
+            background: rgba(76, 201, 240, 0.3);
+            transform: translateY(-2px);
+        }
+        
+        /* 移动端触摸优化 */
+        .upload-btn:active {
+            background: rgba(76, 201, 240, 0.5);
+            transform: scale(0.95);
+        }
+        
+        /* iOS设备特殊样式 */
+        @supports (-webkit-touch-callout: none) {
+            .upload-btn {
+                -webkit-tap-highlight-color: transparent;
+                -webkit-touch-callout: none;
+                -webkit-user-select: none;
+                user-select: none;
+            }
+            
+            .file-input {
+                -webkit-tap-highlight-color: transparent;
+            }
+            
+            /* iOS文件选择器优化 */
+            .ios-file-selector {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                opacity: 0;
+                z-index: -1;
+            }
+            
+            
+        }
+
+        .file-input {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .status {
+            text-align: center;
+            margin-top: 15px;
+            font-size: 0.9rem;
+            color: var(--warning);
+            min-height: 20px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            transition: all 0.3s ease;
+        }
+        
+        .status.error {
+            color: var(--danger);
+            background: rgba(230, 57, 70, 0.1);
+            border: 1px solid rgba(230, 57, 70, 0.3);
+        }
+        
+        .status.success {
+            color: var(--success);
+            background: rgba(46, 196, 182, 0.1);
+            border: 1px solid rgba(46, 196, 182, 0.3);
+        }
+        
+        .status.info {
+            color: var(--accent);
+            background: rgba(76, 201, 240, 0.1);
+            border: 1px solid rgba(76, 201, 240, 0.3);
+        }
+
+        .progress-container {
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            margin-top: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(to right, var(--primary), var(--accent));
+            border-radius: 4px;
+            width: 0%;
+            transition: width 0.1s linear;
+        }
+
+        /* 响应式设计 - 大屏幕 */
+        @media (min-width: 1200px) {
+            :root {
+                --subtitle-size-base: 1.75rem;
+                --subtitle-size-eng: 1.85rem;
+                --subtitle-size-chi: 1.75rem;
+            }
+            
+            .english {
+                font-size: calc(1.85rem + 2px) !important;
+                order: 1 !important;
+            }
+            
+            .chinese {
+                font-size: 1.75rem !important;
+                order: 2 !important;
+            }
+            
+            .subtitle {
+                max-width: 90%;
+            }
+        }
+
+        /* 响应式设计 - 中等屏幕 */
+        @media (max-width: 1199px) and (min-width: 769px) {
+            :root {
+                --subtitle-size-base: 1.625rem;
+                --subtitle-size-eng: 1.725rem;
+                --subtitle-size-chi: 1.625rem;
+            }
+            
+            .english {
+                font-size: calc(1.725rem + 2px) !important;
+                order: 1 !important;
+            }
+            
+            .chinese {
+                font-size: 1.625rem !important;
+                order: 2 !important;
+            }
+            
+            .subtitle {
+                max-width: 92%;
+            }
+        }
+
+        /* 响应式设计 - 平板 */
+
+        @media (max-width: 768px) {
+            :root {
+                --subtitle-size-base: 1.3rem;
+                --subtitle-size-eng: 1.4rem;
+                --subtitle-size-chi: 1.3rem;
+            }
+            
+            .english {
+                font-size: calc(1.4rem + 2px) !important;
+                order: 1 !important;
+            }
+            
+            .chinese {
+                font-size: 1.3rem !important;
+                order: 2 !important;
+            }
+            
+            .container {
+                margin: 10px;
+            }
+            
+            .primary-controls {
+                gap: 15px;
+            }
+            
+            .secondary-controls {
+                gap: 10px;
+            }
+            
+            .btn {
+                width: 50px;
+                height: 50px;
+                font-size: 1.2rem;
+            }
+            
+            .btn-large {
+                width: 60px;
+                height: 60px;
+                font-size: 1.5rem;
+            }
+            
+            .subtitle {
+                max-width: 95%;
+                padding: 2px 8px;
+                max-height: none;
+                font-size: 1.3rem !important;
+                white-space: normal;
+                overflow: visible;
+                text-overflow: clip;
+                line-height: 1.4;
+            }
+            
+            .control-group {
+                padding: 8px 15px;
+            }
+            
+            .counter {
+                font-size: 1rem;
+                min-width: 80px;
+                padding: 6px 10px;
+            }
+            
+            .speed-btn {
+                padding: 6px 12px;
+                font-size: 0.9rem;
+            }
+        }
+
+        /* 响应式设计 - 手机 */
+        @media (max-width: 480px) {
+            :root {
+                --subtitle-size-base: 0.85rem;
+                --subtitle-size-eng: 0.95rem;
+                --subtitle-size-chi: 0.85rem;
+            }
+            
+            .english {
+                font-size: 0.95rem !important;
+                order: 1 !important;
+            }
+            
+            .chinese {
+                font-size: 0.85rem !important;
+                order: 2 !important;
+            }
+            
+            /* 手机端倍速控制 */
+            .speed-control {
+                display: none;
+            }
+            
+            .mobile-speed-btn {
+                display: flex !important;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .primary-controls {
+                gap: 8px;
+            }
+            
+            .btn {
+                width: 45px;
+                height: 45px;
+            }
+            
+            .btn-large {
+                width: 55px;
+                height: 55px;
+            }
+            
+            .subtitle {
+                max-width: 95%;
+                padding: 2px 6px;
+                line-height: 1.3;
+                max-height: none;
+                font-size: 0.85rem !important;
+                white-space: normal;
+                overflow: visible;
+                text-overflow: clip;
+                text-shadow: 
+                    -1px -1px 0 #000,  
+                    1px -1px 0 #000,
+                    -1px 1px 0 #000,
+                    1px 1px 0 #000,
+                    0 0 2px rgba(0, 0, 0, 0.8);
+            }
+            
+            .subtitle-container {
+                bottom: 3px;
+                padding: 0 8px;
+                gap: 1px;
+                max-height: 35%;
+            }
+            
+            .upload-btn {
+                padding: 10px 15px;
+                font-size: 0.9rem;
+            }
+        }
+
+        /* 响应式设计 - 超小屏幕 */
+        @media (max-width: 360px) {
+            :root {
+                --subtitle-size-base: 0.75rem;
+                --subtitle-size-eng: 0.85rem;
+                --subtitle-size-chi: 0.75rem;
+            }
+            
+            .english {
+                font-size: 0.85rem !important;
+                order: 1 !important;
+            }
+            
+            .chinese {
+                font-size: 0.75rem !important;
+                order: 2 !important;
+            }
+            
+            .subtitle {
+                max-width: 95%;
+                padding: 2px 5px;
+                line-height: 1.2;
+                max-height: none;
+                font-size: 0.75rem !important;
+                white-space: normal;
+                overflow: visible;
+                text-overflow: clip;
+                text-shadow: 
+                    -1px -1px 0 #000,  
+                    1px -1px 0 #000,
+                    -1px 1px 0 #000,
+                    1px 1px 0 #000,
+                    0 0 2px rgba(0, 0, 0, 0.8);
+            }
+            
+            .subtitle-container {
+                bottom: 3px;
+                gap: 1px;
+                padding: 0 5px;
+                max-height: 30%;
+            }
+        }
+
+        /* iOS和安卓设备统一字幕大小 */
+        @media (max-width: 480px) {
+            /* 确保iOS和安卓设备使用相同的字幕大小 */
+            .english {
+                font-size: 15px !important;
+                order: 1 !important;
+            }
+            
+            .chinese {
+                font-size: 14px !important;
+                order: 2 !important;
+            }
+            
+            .subtitle {
+                font-size: 14px !important;
+            }
+        }
+        
+        @media (max-width: 360px) {
+            /* 超小屏幕统一字幕大小 */
+            .english {
+                font-size: 14px !important;
+                order: 1 !important;
+            }
+            
+            .chinese {
+                font-size: 12px !important;
+                order: 2 !important;
+            }
+            
+            .subtitle {
+                font-size: 12px !important;
+            }
+        }
+
+        /* 横屏模式优化 */
+        @media (orientation: landscape) and (max-height: 500px) {
+            :root {
+                --subtitle-size-base: 1rem;
+                --subtitle-size-eng: 1.1rem;
+                --subtitle-size-chi: 1rem;
+            }
+            
+            .english {
+                font-size: calc(1.1rem + 2px) !important;
+                order: 1 !important;
+            }
+            
+            .chinese {
+                font-size: 1rem !important;
+                order: 2 !important;
+            }
+            
+            .subtitle-container {
+                bottom: 3px;
+                gap: 1px;
+                max-height: 25%;
+            }
+            
+            .subtitle {
+                padding: 2px 6px;
+                line-height: 1.2;
+                max-height: 30px;
+                font-size: 1rem !important;
+                white-space: normal;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                max-width: 95%;
+            }
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .btn-active {
+            animation: pulse 0.5s ease;
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.1);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--secondary);
+        }
+
+        .wave {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 100px;
+            background: linear-gradient(45deg, rgba(67, 97, 238, 0.1), rgba(76, 201, 240, 0.1));
+            opacity: 0.4;
+            z-index: -1;
+        }
+        
+        .preview-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .preview-title {
+            font-size: 1rem;
+            color: var(--accent);
+            text-align: center;
+        }
+        
+        .preview-filename {
+            font-size: 0.9rem;
+            text-align: center;
+            color: var(--light);
+            word-break: break-all;
+            padding: 5px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+        }
+        
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--accent);
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .page-loading {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #1a2a6c, #2a3c6c, #3a4c6c);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            color: white;
+            font-family: 'Roboto', sans-serif;
+        }
+        
+        .page-loading.hidden {
+            display: none;
+        }
+        
+        .loading-text {
+            margin-top: 20px;
+            font-size: 1.2rem;
+            color: var(--accent);
+        }
+        
+
+    </style>
+</head>
+<body>
+    <!-- 页面加载指示器 -->
+    <div class="page-loading" id="pageLoading">
+        <div class="loading"></div>
+        <div class="loading-text">LiLi影子跟读完美版 正在加载...</div>
+    </div>
+    
+    <div class="wave"></div>
+    
+    <!-- 网络状态指示器 -->
+    <div class="network-status" id="networkStatus">网络检测中...</div>
+    
+
+    
+    <!-- 单词释义弹窗 -->
+    <div class="word-popup" id="wordPopup">
+        <div class="word-popup-header">
+            <div class="word-popup-word" id="popupWord">word</div>
+            <button class="word-popup-close" id="popupClose">&times;</button>
+        </div>
+        <div class="word-popup-phonetic" id="popupPhonetic">/wɜːd/</div>
+        <div class="word-popup-meaning" id="popupMeaning">释义加载中...</div>
+        <div class="word-popup-exam-tags" id="popupExamTags"></div>
+        <div class="word-popup-example" id="popupExample" style="display: none;">
+            <div class="word-popup-example-title">例句：</div>
+            <div id="popupExampleText"></div>
+        </div>
+    </div>
+
+    <!-- 倍速选择弹窗 -->
+    <div class="speed-popup" id="speedPopup">
+        <div class="speed-popup-header">
+            <div class="speed-popup-title">选择播放速度</div>
+            <button class="speed-popup-close" id="speedPopupClose">&times;</button>
+        </div>
+        <div class="speed-popup-content">
+            <button class="speed-popup-btn" data-speed="0.25">0.25x</button>
+            <button class="speed-popup-btn" data-speed="0.5">0.5x</button>
+            <button class="speed-popup-btn" data-speed="0.75">0.75x</button>
+            <button class="speed-popup-btn active" data-speed="1">1x</button>
+            <button class="speed-popup-btn" data-speed="1.25">1.25x</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <header>
+            <h1>LiLi影子跟读完美版</h1>
+            <div class="tagline">专业级语言学习工具 - 提升口语流利度</div>
+        </header>
+        
+        <div class="main-content">
+            <div class="video-container">
+                <video class="video-player" id="videoPlayer" playsinline>
+                    <!-- 移除默认视频源，避免加载失败 -->
+                    您的浏览器不支持视频播放
+                </video>
+                
+                <div class="subtitle-container" id="subtitleContainer">
+                    <div class="subtitle english" id="englishSub" style="order: 1 !important;">Welcome to LiLi Shadowing Perfect</div>
+                    <div class="subtitle chinese" id="chineseSub" style="order: 2 !important;">欢迎使用LiLi影子跟读完美版</div>
+                </div>
+            </div>
+            
+            <div class="progress-container">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+            
+            <div class="controls">
+                <div class="primary-controls">
+                    <button class="btn" id="prevBtn" title="上一句">
+                        <i class="fas fa-step-backward"></i>
+                    </button>
+                    <button class="btn btn-large" id="playPauseBtn" title="播放/暂停">
+                        <i class="fas fa-play"></i>
+                    </button>
+                    <button class="btn" id="nextBtn" title="下一句">
+                        <i class="fas fa-step-forward"></i>
+                    </button>
+                </div>
+                
+                <div class="secondary-controls">
+                    <div class="control-group">
+                        <button class="btn toggle-btn" id="loopBtn" title="单句循环">
+                            <i class="fas fa-repeat"></i>
+                        </button>
+                        <div class="counter" id="loopCounter">循环: 0</div>
+                    </div>
+                    
+                    <div class="control-group">
+                        <button class="btn toggle-btn" id="subtitleBtn" title="字幕开关">
+                            <i class="fas fa-closed-captioning"></i>
+                        </button>
+                        <div>字幕</div>
+                    </div>
+                    
+                    <div class="control-group">
+                        <div>倍速:</div>
+                        <div class="speed-control">
+                            <button class="speed-btn" data-speed="0.25">0.25x</button>
+                            <button class="speed-btn" data-speed="0.5">0.5x</button>
+                            <button class="speed-btn" data-speed="0.75">0.75x</button>
+                            <button class="speed-btn active" data-speed="1">1x</button>
+                            <button class="speed-btn" data-speed="1.25">1.25x</button>
+                        </div>
+                        <!-- 手机端倍速弹窗按钮 -->
+                        <button class="mobile-speed-btn" id="mobileSpeedBtn" title="选择倍速">
+                            <i class="fas fa-tachometer-alt"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="file-upload">
+                <div class="upload-title">上传学习材料</div>
+                <div class="upload-options">
+                    <div class="upload-btn" id="videoUploadBtn">
+                        <i class="fas fa-video"></i> 上传视频
+                        <input type="file" class="file-input" id="videoUpload" accept="video/*,.mp4,.avi,.mov,.wmv,.flv,.webm,.m4v,.3gp">
+                    </div>
+                    <div class="upload-btn" id="subtitleUploadBtn">
+                        <i class="fas fa-closed-captioning"></i> 上传字幕
+                        <input type="file" class="file-input" id="subtitleUpload" accept="*/*">
+                    </div>
+                </div>
+                
+                <!-- 备用文件选择器（隐藏） -->
+                <div style="display: none;">
+                    <input type="file" id="backupVideoUpload" accept="video/*,.mp4,.avi,.mov,.wmv,.flv,.webm,.m4v,.3gp">
+                    <input type="file" id="backupSubtitleUpload" accept="*/*">
+                </div>
+                
+
+                
+                <div class="preview-container">
+                    <div class="preview-title">已上传文件</div>
+                    <div class="preview-filename" id="videoFilename">未选择视频文件</div>
+                    <div class="preview-filename" id="subtitleFilename">未选择字幕文件</div>
+                </div>
+                
+                <div class="status" id="statusMessage">请上传视频和字幕文件开始学习</div>
+                
+
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 页面加载状态检查
+        console.log('LiLi影子跟读完美版 - 页面开始加载');
+        
+        // 全局错误处理
+        window.addEventListener('error', function(e) {
+            console.error('全局错误:', e.error);
+        });
+        
+        window.addEventListener('unhandledrejection', function(e) {
+            console.error('未处理的Promise拒绝:', e.reason);
+        });
+        
+        // 确保页面完全加载
+        window.addEventListener('load', function() {
+            console.log('LiLi影子跟读完美版 - 页面完全加载完成');
+        });
+        
+        // 超时保护 - 5秒后强制隐藏加载指示器
+        setTimeout(function() {
+            const pageLoading = document.getElementById('pageLoading');
+            if (pageLoading && !pageLoading.classList.contains('hidden')) {
+                console.log('页面加载超时，强制显示内容');
+                pageLoading.classList.add('hidden');
+            }
+        }, 5000);
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('LiLi影子跟读完美版 - DOM加载完成');
+            
+            // 网络状态检测和备用方案
+            const networkStatus = document.getElementById('networkStatus');
+            
+            function updateNetworkStatus(status, message) {
+                networkStatus.className = 'network-status ' + status;
+                networkStatus.textContent = message;
+            }
+            
+            function checkNetworkAndApplyFallbacks() {
+                // 检测FontAwesome是否加载成功
+                const testIcon = document.createElement('i');
+                testIcon.className = 'fas fa-play';
+                testIcon.style.position = 'absolute';
+                testIcon.style.left = '-9999px';
+                document.body.appendChild(testIcon);
+                
+                const iconWidth = testIcon.offsetWidth;
+                document.body.removeChild(testIcon);
+                
+                let fallbackApplied = false;
+                
+                // 如果图标宽度为0，说明FontAwesome未加载，应用备用图标
+                if (iconWidth === 0) {
+                    console.log('FontAwesome未加载，应用备用图标');
+                    document.body.classList.add('fallback-icons');
+                    fallbackApplied = true;
+                }
+                
+                // 检测Google Fonts是否加载成功
+                const testFont = document.createElement('span');
+                testFont.style.fontFamily = 'Roboto, sans-serif';
+                testFont.style.position = 'absolute';
+                testFont.style.left = '-9999px';
+                testFont.textContent = 'Test';
+                document.body.appendChild(testFont);
+                
+                const originalWidth = testFont.offsetWidth;
+                testFont.style.fontFamily = 'Arial, sans-serif';
+                const fallbackWidth = testFont.offsetWidth;
+                document.body.removeChild(testFont);
+                
+                // 如果字体宽度相同，说明Google Fonts未加载
+                if (Math.abs(originalWidth - fallbackWidth) < 2) {
+                    console.log('Google Fonts未加载，使用系统字体');
+                    document.body.classList.add('fallback-fonts');
+                    fallbackApplied = true;
+                }
+                
+                // 检测网络连接速度
+                const startTime = performance.now();
+                fetch('https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css', { 
+                    method: 'HEAD',
+                    cache: 'no-cache'
+                }).then(() => {
+                    const loadTime = performance.now() - startTime;
+                    if (loadTime > 3000) {
+                        console.log('网络较慢，应用优化');
+                        fallbackApplied = true;
+                    }
+                }).catch(() => {
+                    console.log('网络连接失败，使用本地资源');
+                    fallbackApplied = true;
+                });
+                
+                // 更新网络状态显示
+                if (fallbackApplied) {
+                    updateNetworkStatus('fallback', '使用本地资源');
+                } else {
+                    updateNetworkStatus('online', '网络正常');
+                }
+                
+                // 3秒后隐藏状态指示器
+                setTimeout(() => {
+                    networkStatus.style.opacity = '0';
+                    setTimeout(() => {
+                        networkStatus.style.display = 'none';
+                    }, 300);
+                }, 3000);
+            }
+            
+                    // 延迟检测，给外部资源一些加载时间
+        setTimeout(checkNetworkAndApplyFallbacks, 1500);
+        
+        // 添加网络优化
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('./sw.js').catch(() => {
+                console.log('Service Worker 注册失败，使用备用方案');
+            });
+        }
+            
+            // 获取DOM元素
+            const videoPlayer = document.getElementById('videoPlayer');
+            const playPauseBtn = document.getElementById('playPauseBtn');
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            const loopBtn = document.getElementById('loopBtn');
+            const subtitleBtn = document.getElementById('subtitleBtn');
+            const loopCounter = document.getElementById('loopCounter');
+            const subtitleContainer = document.getElementById('subtitleContainer');
+            const englishSub = document.getElementById('englishSub');
+            const chineseSub = document.getElementById('chineseSub');
+            const statusMessage = document.getElementById('statusMessage');
+            const speedBtns = document.querySelectorAll('.speed-btn');
+            const progressBar = document.getElementById('progressBar');
+            const videoUpload = document.getElementById('videoUpload');
+            const subtitleUpload = document.getElementById('subtitleUpload');
+            const videoFilename = document.getElementById('videoFilename');
+            const subtitleFilename = document.getElementById('subtitleFilename');
+            
+            // 单词查询相关DOM元素
+            const wordPopup = document.getElementById('wordPopup');
+            const popupWord = document.getElementById('popupWord');
+            const popupPhonetic = document.getElementById('popupPhonetic');
+            const popupMeaning = document.getElementById('popupMeaning');
+            const popupExamTags = document.getElementById('popupExamTags');
+            const popupExample = document.getElementById('popupExample');
+            const popupExampleText = document.getElementById('popupExampleText');
+            const popupClose = document.getElementById('popupClose');
+            
+            // 字幕数据
+            let subtitles = [];
+            let currentSubIndex = 0;
+            let loopCount = 0;
+            let isLooping = false;
+            let subtitlesEnabled = true;
+            let currentLoopStart = 0;
+            let currentLoopEnd = 0;
+            
+            // 单词查询数据
+            let wordDictionary = {};
+            let examWordLists = {
+                cet4: new Set(),
+                cet6: new Set(),
+                cet8: new Set(),
+                ielts: new Set(),
+                toefl: new Set(),
+                gre: new Set(),
+                gaokao: new Set(),
+                kaoyan: new Set()
+            };
+            
+            // 单词弹窗状态
+            let currentClickedWord = null;
+            let popupTimeout = null;
+            
+            // 动态调整字幕大小
+            function adjustSubtitleSize() {
+                const container = document.querySelector('.video-container');
+                const englishSub = document.getElementById('englishSub');
+                const chineseSub = document.getElementById('chineseSub');
+                
+                if (!container || !englishSub || !chineseSub) return;
+                
+                const containerWidth = container.offsetWidth;
+                const containerHeight = container.offsetHeight;
+                
+                // 根据容器大小动态调整字体大小 - 所有尺寸都增加2px
+                let baseSize, engSize, chiSize;
+                
+                if (containerWidth >= 1200) {
+                    // 大屏幕
+                    baseSize = Math.min(containerWidth * 0.015, 1.6);
+                    engSize = Math.min(containerWidth * 0.016, 1.7);
+                    chiSize = Math.min(containerWidth * 0.015, 1.6);
+                } else if (containerWidth >= 768) {
+                    // 中等屏幕
+                    baseSize = Math.min(containerWidth * 0.018, 1.5);
+                    engSize = Math.min(containerWidth * 0.019, 1.6);
+                    chiSize = Math.min(containerWidth * 0.018, 1.5);
+                } else if (containerWidth >= 480) {
+                    // 平板
+                    baseSize = Math.min(containerWidth * 0.02, 1.3);
+                    engSize = Math.min(containerWidth * 0.021, 1.4);
+                    chiSize = Math.min(containerWidth * 0.02, 1.3);
+                } else if (containerWidth >= 360) {
+                    // 手机
+                    baseSize = Math.min(containerWidth * 0.022, 0.375);
+                    engSize = Math.min(containerWidth * 0.023, 0.375);
+                    chiSize = Math.min(containerWidth * 0.022, 0.375);
+                } else {
+                    // 超小屏幕
+                    baseSize = Math.min(containerWidth * 0.025, 0.375);
+                    engSize = Math.min(containerWidth * 0.026, 0.375);
+                    chiSize = Math.min(containerWidth * 0.025, 0.375);
+                }
+                
+                // 横屏模式特殊处理
+                if (window.innerHeight < window.innerWidth && window.innerHeight < 500) {
+                    baseSize *= 0.7;
+                    engSize *= 0.7;
+                    chiSize *= 0.7;
+                }
+                
+                // 应用字体大小 - 英文字幕比中文字幕大2px
+                document.documentElement.style.setProperty('--subtitle-size-base', baseSize + 'rem');
+                document.documentElement.style.setProperty('--subtitle-size-eng', engSize + 'rem');
+                document.documentElement.style.setProperty('--subtitle-size-chi', chiSize + 'rem');
+                
+                // 直接设置英文字幕字体大小，确保比中文字幕大2px
+                let engSizePx, chiSizePx;
+                
+                // 手机端特殊处理，使用合适的字体大小（统一iOS和安卓）
+                if (containerWidth <= 480) {
+                    engSizePx = 15; // 约0.95rem，减小1.5px
+                    chiSizePx = 14; // 约0.85rem，减小1.5px
+                } else if (containerWidth <= 360) {
+                    engSizePx = 14; // 约0.85rem，减小1.5px
+                    chiSizePx = 12; // 约0.75rem，减小1.5px
+                } else {
+                    engSizePx = parseFloat(engSize) * 16 + 2; // 转换为px并加2px
+                    chiSizePx = parseFloat(chiSize) * 16;
+                }
+                
+                englishSub.style.fontSize = engSizePx + 'px';
+                chineseSub.style.fontSize = chiSizePx + 'px';
+                
+                // 调整字幕容器的最大宽度 - 确保完整显示且不超出边界
+                const maxWidth = Math.min(containerWidth * 0.95, 95);
+                englishSub.style.maxWidth = maxWidth + '%';
+                chineseSub.style.maxWidth = maxWidth + '%';
+                
+                // 确保字幕容器不会超出视频容器边界
+                const subtitleContainer = document.getElementById('subtitleContainer');
+                if (subtitleContainer) {
+                                    // 根据屏幕大小设置最大高度
+                if (containerWidth <= 360) {
+                    subtitleContainer.style.maxHeight = '30%';
+                } else if (containerWidth <= 480) {
+                    subtitleContainer.style.maxHeight = '35%';
+                } else if (containerWidth <= 768) {
+                    subtitleContainer.style.maxHeight = '25%';
+                } else {
+                    subtitleContainer.style.maxHeight = '30%';
+                }
+                    
+                    // 确保字幕容器始终在视频容器内
+                    subtitleContainer.style.left = '0';
+                    subtitleContainer.style.right = '0';
+                    subtitleContainer.style.bottom = '3px';
+                }
+            }
+            
+            // 监听窗口大小变化
+            let resizeTimeout;
+            window.addEventListener('resize', function() {
+                clearTimeout(resizeTimeout);
+                resizeTimeout = setTimeout(() => {
+                    adjustSubtitleSize();
+                    ensureSubtitleBoundaries();
+                }, 100);
+            });
+            
+            // 监听屏幕方向变化
+            window.addEventListener('orientationchange', function() {
+                setTimeout(() => {
+                    adjustSubtitleSize();
+                    ensureSubtitleBoundaries();
+                }, 300);
+            });
+            
+            // 初始化页面
+            function initializePage() {
+                console.log('开始初始化页面...');
+                
+                // 检查所有必要的DOM元素是否存在
+                const requiredElements = [
+                    'videoPlayer', 'playPauseBtn', 'prevBtn', 'nextBtn', 
+                    'loopBtn', 'subtitleBtn', 'loopCounter', 'subtitleContainer',
+                    'englishSub', 'chineseSub', 'statusMessage', 'progressBar',
+                    'videoUpload', 'subtitleUpload', 'videoFilename', 'subtitleFilename'
+                ];
+                
+                const missingElements = [];
+                requiredElements.forEach(id => {
+                    if (!document.getElementById(id)) {
+                        missingElements.push(id);
+                    }
+                });
+                
+                if (missingElements.length > 0) {
+                    console.error('缺少必要的DOM元素:', missingElements);
+                    document.body.innerHTML = '<div style="text-align: center; padding: 50px; color: white;">页面加载失败，请刷新重试</div>';
+                    return;
+                }
+                
+                console.log('所有DOM元素检查完成');
+                
+                // 设置初始状态
+                statusMessage.textContent = "请上传视频和字幕文件开始学习";
+                videoFilename.textContent = "未选择视频文件";
+                subtitleFilename.textContent = "未选择字幕文件";
+                
+                // 初始化字幕显示
+                updateSubtitles();
+                
+                // 初始化字幕大小
+                adjustSubtitleSize();
+                ensureSubtitleBoundaries();
+                
+                // 添加错误处理
+                videoPlayer.addEventListener('error', function(e) {
+                    console.error('视频加载错误:', e);
+                    statusMessage.textContent = "视频加载失败，请重新上传";
+                });
+                
+                // 添加网络状态检测
+                window.addEventListener('online', function() {
+                    statusMessage.textContent = "网络连接已恢复";
+                    updateNetworkStatus('online', '网络已恢复');
+                });
+                
+                window.addEventListener('offline', function() {
+                    statusMessage.textContent = "网络连接已断开";
+                    updateNetworkStatus('offline', '网络已断开');
+                });
+                
+                console.log('页面初始化完成');
+                
+                // 隐藏加载指示器
+                const pageLoading = document.getElementById('pageLoading');
+                if (pageLoading) {
+                    pageLoading.classList.add('hidden');
+                }
+            }
+            
+            // 调用初始化函数
+            initializePage();
+            
+            // 初始化单词查询功能
+            initializeWordQuery();
+            
+            // 确保在页面加载完成后重新绑定单词点击事件
+            setTimeout(() => {
+                if (englishSub.textContent) {
+                    makeWordsClickable(englishSub);
+                    console.log('页面加载完成后重新绑定单词点击事件');
+                }
+            }, 1000);
+            
+            // 添加移动端触摸事件支持
+            function addMobileSupport() {
+                // 为文件上传按钮添加触摸事件
+                const videoUploadBtn = document.getElementById('videoUploadBtn');
+                const subtitleUploadBtn = document.getElementById('subtitleUploadBtn');
+                const videoUpload = document.getElementById('videoUpload');
+                const subtitleUpload = document.getElementById('subtitleUpload');
+                
+                // 检测是否为移动设备
+                const isMobile = /Android|iPhone|iPad|iPod|Mobile|Tablet/.test(navigator.userAgent);
+                
+                console.log('设备检测 - 移动设备:', isMobile, 'User Agent:', navigator.userAgent);
+                
+                if (videoUploadBtn && videoUpload) {
+                    // 移除可能冲突的事件监听器
+                    videoUploadBtn.replaceWith(videoUploadBtn.cloneNode(true));
+                    const newVideoUploadBtn = document.getElementById('videoUploadBtn');
+                    
+                    newVideoUploadBtn.addEventListener('touchstart', function(e) {
+                        e.preventDefault();
+                        this.style.transform = 'scale(0.95)';
+                        this.style.backgroundColor = 'rgba(76, 201, 240, 0.5)';
+                    }, { passive: false });
+                    
+                    newVideoUploadBtn.addEventListener('touchend', function(e) {
+                        e.preventDefault();
+                        this.style.transform = 'scale(1)';
+                        this.style.backgroundColor = '';
+                        
+                        // 延迟触发文件选择，确保触摸事件完全结束
+                        setTimeout(() => {
+                            try {
+                                videoUpload.click();
+                                console.log('视频文件选择器已触发');
+                            } catch (error) {
+                                console.error('视频文件选择器触发失败:', error);
+                                statusMessage.textContent = "文件选择器打开失败，请重试";
+                            }
+                        }, 100);
+                    }, { passive: false });
+                    
+                    // 添加点击事件作为备用
+                    newVideoUploadBtn.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        try {
+                            videoUpload.click();
+                            console.log('视频文件选择器已触发（点击）');
+                        } catch (error) {
+                            console.error('视频文件选择器触发失败（点击）:', error);
+                            statusMessage.textContent = "文件选择器打开失败，请重试";
+                        }
+                    });
+                }
+                
+                if (subtitleUploadBtn && subtitleUpload) {
+                    // 移除可能冲突的事件监听器
+                    subtitleUploadBtn.replaceWith(subtitleUploadBtn.cloneNode(true));
+                    const newSubtitleUploadBtn = document.getElementById('subtitleUploadBtn');
+                    
+                    newSubtitleUploadBtn.addEventListener('touchstart', function(e) {
+                        e.preventDefault();
+                        this.style.transform = 'scale(0.95)';
+                        this.style.backgroundColor = 'rgba(76, 201, 240, 0.5)';
+                    }, { passive: false });
+                    
+                    newSubtitleUploadBtn.addEventListener('touchend', function(e) {
+                        e.preventDefault();
+                        this.style.transform = 'scale(1)';
+                        this.style.backgroundColor = '';
+                        
+                        // 延迟触发文件选择，确保触摸事件完全结束
+                        setTimeout(() => {
+                            try {
+                                subtitleUpload.click();
+                                console.log('字幕文件选择器已触发');
+                                statusMessage.textContent = "正在打开文件选择器...";
+                            } catch (error) {
+                                console.error('字幕文件选择器触发失败:', error);
+                                statusMessage.textContent = "文件选择器打开失败，请重试";
+                            }
+                        }, 100);
+                    }, { passive: false });
+                    
+                    // 添加点击事件作为备用
+                    newSubtitleUploadBtn.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        try {
+                            subtitleUpload.click();
+                            console.log('字幕文件选择器已触发（点击）');
+                            statusMessage.textContent = "正在打开文件选择器...";
+                        } catch (error) {
+                            console.error('字幕文件选择器触发失败（点击）:', error);
+                            statusMessage.textContent = "文件选择器打开失败，请重试";
+                        }
+                    });
+                }
+                
+                // 为控制按钮添加触摸事件
+                const buttons = document.querySelectorAll('.btn, .speed-btn');
+                buttons.forEach(btn => {
+                    btn.addEventListener('touchstart', function(e) {
+                        e.preventDefault();
+                        this.style.transform = 'scale(0.95)';
+                    }, { passive: false });
+                    
+                    btn.addEventListener('touchend', function(e) {
+                        e.preventDefault();
+                        this.style.transform = 'scale(1)';
+                        // 触发点击事件
+                        this.click();
+                    }, { passive: false });
+                });
+                
+                // 移动设备特殊处理
+                if (isMobile) {
+                    console.log('检测到移动设备，应用特殊处理');
+                    
+                    // 为移动设备添加文件选择支持
+                    if (subtitleUpload) {
+                        subtitleUpload.addEventListener('change', function(e) {
+                            console.log('移动设备字幕文件选择事件触发');
+                            if (e.target.files && e.target.files.length > 0) {
+                                console.log('移动设备字幕文件已选择:', e.target.files[0].name);
+                                statusMessage.textContent = "字幕文件已选择，正在处理...";
+                            }
+                        });
+                    }
+                    
+                    if (videoUpload) {
+                        videoUpload.addEventListener('change', function(e) {
+                            console.log('移动设备视频文件选择事件触发');
+                            if (e.target.files && e.target.files.length > 0) {
+                                console.log('移动设备视频文件已选择:', e.target.files[0].name);
+                                statusMessage.textContent = "视频文件已选择，正在处理...";
+                            }
+                        });
+                    }
+                }
+            }
+            
+            // 添加移动端支持
+            addMobileSupport();
+            
+            // 播放/暂停按钮事件
+            playPauseBtn.addEventListener('click', function() {
+                if (videoPlayer.paused) {
+                    // 检查是否有视频源
+                    if (!videoPlayer.src && !videoPlayer.currentSrc) {
+                        statusMessage.textContent = "请先上传视频文件";
+                        return;
+                    }
+                    
+                    videoPlayer.play().then(() => {
+                        playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
+                        playPauseBtn.classList.add('btn-active');
+                        statusMessage.textContent = "播放中";
+                    }).catch(error => {
+                        console.error('播放失败:', error);
+                        statusMessage.textContent = "播放失败，请检查视频文件";
+                    });
+                } else {
+                    videoPlayer.pause();
+                    playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
+                    statusMessage.textContent = "已暂停";
+                }
+            });
+            
+            // 上一句按钮事件
+            prevBtn.addEventListener('click', function() {
+                if (currentSubIndex > 0) {
+                    currentSubIndex--;
+                    jumpToSubtitle(currentSubIndex);
+                    prevBtn.classList.add('btn-active');
+                    setTimeout(() => prevBtn.classList.remove('btn-active'), 300);
+                }
+            });
+            
+            // 下一句按钮事件
+            nextBtn.addEventListener('click', function() {
+                if (currentSubIndex < subtitles.length - 1) {
+                    currentSubIndex++;
+                    jumpToSubtitle(currentSubIndex);
+                    nextBtn.classList.add('btn-active');
+                    setTimeout(() => nextBtn.classList.remove('btn-active'), 300);
+                }
+            });
+            
+            // 单句循环按钮事件
+            loopBtn.addEventListener('click', function() {
+                isLooping = !isLooping;
+                loopBtn.classList.toggle('active', isLooping);
+                
+                if (isLooping) {
+                    // 设置当前句子的循环起始点
+                    if (subtitles.length > 0 && currentSubIndex < subtitles.length) {
+                        currentLoopStart = subtitles[currentSubIndex].start;
+                        currentLoopEnd = subtitles[currentSubIndex].end;
+                    }
+                    
+                    loopBtn.classList.add('btn-active');
+                    setTimeout(() => loopBtn.classList.remove('btn-active'), 300);
+                    statusMessage.textContent = "单句循环已启用";
+                } else {
+                    statusMessage.textContent = "单句循环已禁用";
+                }
+            });
+            
+            // 字幕开关按钮事件
+            subtitleBtn.addEventListener('click', function() {
+                subtitlesEnabled = !subtitlesEnabled;
+                subtitleBtn.classList.toggle('active', subtitlesEnabled);
+                subtitleContainer.style.opacity = subtitlesEnabled ? '1' : '0';
+                
+                statusMessage.textContent = subtitlesEnabled ? "字幕已显示" : "字幕已隐藏";
+            });
+            
+            // 倍速按钮事件
+            speedBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const speed = parseFloat(this.dataset.speed);
+                    videoPlayer.playbackRate = speed;
+                    
+                    speedBtns.forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    statusMessage.textContent = `播放速度: ${speed}x`;
+                });
+            });
+            
+            // 手机端倍速弹窗功能
+            const mobileSpeedBtn = document.getElementById('mobileSpeedBtn');
+            const speedPopup = document.getElementById('speedPopup');
+            const speedPopupClose = document.getElementById('speedPopupClose');
+            const speedPopupBtns = document.querySelectorAll('.speed-popup-btn');
+            
+            // 显示倍速弹窗
+            if (mobileSpeedBtn) {
+                mobileSpeedBtn.addEventListener('click', function() {
+                    speedPopup.classList.add('show');
+                    mobileSpeedBtn.classList.add('active');
+                });
+            }
+            
+            // 关闭倍速弹窗
+            if (speedPopupClose) {
+                speedPopupClose.addEventListener('click', function() {
+                    speedPopup.classList.remove('show');
+                    mobileSpeedBtn.classList.remove('active');
+                });
+            }
+            
+            // 点击弹窗外部关闭
+            document.addEventListener('click', function(e) {
+                if (speedPopup && speedPopup.classList.contains('show') && 
+                    !speedPopup.contains(e.target) && 
+                    !mobileSpeedBtn.contains(e.target)) {
+                    speedPopup.classList.remove('show');
+                    mobileSpeedBtn.classList.remove('active');
+                }
+            });
+            
+            // 弹窗内倍速按钮事件
+            speedPopupBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const speed = parseFloat(this.dataset.speed);
+                    videoPlayer.playbackRate = speed;
+                    
+                    // 更新所有倍速按钮状态
+                    speedBtns.forEach(b => b.classList.remove('active'));
+                    speedPopupBtns.forEach(b => b.classList.remove('active'));
+                    
+                    // 激活当前选中的按钮
+                    this.classList.add('active');
+                    
+                    // 找到对应的桌面端按钮并激活
+                    const desktopBtn = document.querySelector(`.speed-btn[data-speed="${speed}"]`);
+                    if (desktopBtn) {
+                        desktopBtn.classList.add('active');
+                    }
+                    
+                    // 关闭弹窗
+                    speedPopup.classList.remove('show');
+                    mobileSpeedBtn.classList.remove('active');
+                    
+                    statusMessage.textContent = `播放速度: ${speed}x`;
+                });
+            });
+            
+            // 视频时间更新事件
+            videoPlayer.addEventListener('timeupdate', function() {
+                const currentTime = videoPlayer.currentTime;
+                const duration = videoPlayer.duration;
+                
+                // 更新进度条
+                if (duration > 0) {
+                    const progressPercent = (currentTime / duration) * 100;
+                    progressBar.style.width = `${progressPercent}%`;
+                }
+                
+                // 检查是否应该循环当前句子
+                if (isLooping && subtitles.length > 0) {
+                    // 如果当前时间超过当前循环句子的结束时间，则跳回开始
+                    if (currentTime >= currentLoopEnd) {
+                        loopCount++;
+                        loopCounter.textContent = `循环: ${loopCount}`;
+                        videoPlayer.currentTime = currentLoopStart;
+                        statusMessage.textContent = `当前句子循环次数: ${loopCount}`;
+                        return; // 避免执行后续的下一句检测
+                    }
+                }
+                
+                // 检查是否应该显示下一句字幕
+                if (subtitles.length > 0 && currentSubIndex < subtitles.length - 1 && currentTime >= subtitles[currentSubIndex + 1].start) {
+                    currentSubIndex++;
+                    updateSubtitles();
+                    
+                    // 如果开启了循环，更新循环范围
+                    if (isLooping) {
+                        currentLoopStart = subtitles[currentSubIndex].start;
+                        currentLoopEnd = subtitles[currentSubIndex].end;
+                    }
+                }
+            });
+            
+            // 视频结束事件
+            videoPlayer.addEventListener('ended', function() {
+                playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
+                statusMessage.textContent = "播放完成";
+            });
+            
+            // 视频上传事件 - 改进版本，支持iOS设备
+            videoUpload.addEventListener('change', function(e) {
+                console.log('视频文件上传事件触发');
+                const file = e.target.files[0];
+                if (!file) {
+                    console.log('没有选择视频文件');
+                    statusMessage.textContent = "未选择视频文件，请重新选择";
+                    return;
+                }
+                
+                console.log('选择的视频文件:', file.name, '大小:', file.size, '类型:', file.type);
+                
+                // 改进的视频文件类型检测，支持iOS设备
+                const validVideoTypes = ['video/mp4', 'video/avi', 'video/mov', 'video/wmv', 'video/flv', 'video/webm'];
+                const validExtensions = ['.mp4', '.avi', '.mov', '.wmv', '.flv', '.webm', '.m4v', '.3gp'];
+                const fileExt = file.name.substring(file.name.lastIndexOf('.')).toLowerCase();
+                
+                const isValidVideo = file.type.startsWith('video/') || 
+                                   validVideoTypes.includes(file.type) ||
+                                   validExtensions.includes(fileExt) ||
+                                   file.name.toLowerCase().includes('.mp4') ||
+                                   file.name.toLowerCase().includes('.avi') ||
+                                   file.name.toLowerCase().includes('.mov');
+                
+                if (!isValidVideo) {
+                    statusMessage.textContent = "请选择有效的视频文件（MP4、AVI、MOV等格式）";
+                    console.log('不支持的视频格式:', fileExt, '文件类型:', file.type);
+                    return;
+                }
+                
+                videoFilename.textContent = file.name;
+                statusMessage.innerHTML = '<span class="loading"></span> 正在加载视频...';
+                
+                try {
+                    const videoURL = URL.createObjectURL(file);
+                    videoPlayer.src = videoURL;
+                    videoPlayer.load();
+                    
+                    // 添加加载事件监听
+                    videoPlayer.addEventListener('loadstart', function() {
+                        console.log('视频开始加载');
+                        statusMessage.innerHTML = '<span class="loading"></span> 正在加载视频...';
+                    });
+                    
+                    videoPlayer.addEventListener('loadedmetadata', function() {
+                        console.log('视频元数据加载完成');
+                        statusMessage.textContent = "视频元数据加载完成";
+                    });
+                    
+                    videoPlayer.addEventListener('loadeddata', function() {
+                        console.log('视频数据加载完成');
+                        statusMessage.textContent = "视频加载完成，准备播放";
+                        // 重新调整字幕大小
+                        adjustSubtitleSize();
+                        
+                        // 尝试自动播放
+                        videoPlayer.play().then(() => {
+                            console.log('视频自动播放成功');
+                            playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
+                            statusMessage.textContent = "视频播放中";
+                        }).catch(error => {
+                            console.error('自动播放失败:', error);
+                            statusMessage.textContent = "视频加载完成，点击播放按钮开始播放";
+                        });
+                    });
+                    
+                    videoPlayer.addEventListener('error', function(e) {
+                        console.error('视频加载错误:', e);
+                        statusMessage.textContent = "视频加载失败，请选择其他文件";
+                    });
+                    
+                    videoPlayer.addEventListener('canplay', function() {
+                        console.log('视频可以播放');
+                    });
+                    
+                } catch (error) {
+                    console.error('视频处理错误:', error);
+                    statusMessage.textContent = "视频处理失败，请选择其他文件";
+                }
+            });
+            
+            // 字幕上传事件 - 改进版本，支持iOS设备
+            subtitleUpload.addEventListener('change', function(e) {
+                console.log('字幕文件上传事件触发');
+                const file = e.target.files[0];
+                if (!file) {
+                    console.log('没有选择文件');
+                    statusMessage.textContent = "未选择文件，请重新选择";
+                    return;
+                }
+                
+                console.log('选择的字幕文件:', file.name, '大小:', file.size, '类型:', file.type);
+                
+                // 使用改进的文件类型验证函数
+                if (!validateSubtitleFile(file)) {
+                    statusMessage.textContent = "请选择SRT、VTT或TXT格式的字幕文件";
+                    console.log('不支持的文件格式:', file.name, '文件类型:', file.type);
+                    return;
+                }
+                
+                subtitleFilename.textContent = file.name;
+                statusMessage.innerHTML = '<span class="loading"></span> 正在加载字幕...';
+                
+                const reader = new FileReader();
+                
+                // 改进的错误处理
+                reader.onload = function(e) {
+                    console.log('字幕文件读取完成，开始解析');
+                    try {
+                        const content = e.target.result;
+                        console.log('文件内容长度:', content.length);
+                        console.log('文件内容前200字符:', content.substring(0, 200));
+                        
+                        // 解析字幕文件
+                        subtitles = parseSubtitle(content);
+                        currentSubIndex = 0;
+                        loopCount = 0;
+                        loopCounter.textContent = `循环: ${loopCount}`;
+                        
+                        console.log('解析到的字幕数量:', subtitles.length);
+                        
+                        if (subtitles.length > 0) {
+                            statusMessage.textContent = `成功加载 ${subtitles.length} 条双语字幕`;
+                            updateSubtitles();
+                            // 重新调整字幕大小
+                            adjustSubtitleSize();
+                        } else {
+                            statusMessage.textContent = "字幕文件为空或格式不正确，请检查文件内容";
+                            console.log('字幕解析结果为空');
+                        }
+                    } catch (error) {
+                        console.error('字幕解析错误:', error);
+                        statusMessage.textContent = "字幕解析失败: " + error.message;
+                    }
+                };
+                
+                reader.onerror = function(error) {
+                    console.error('文件读取错误:', error);
+                    statusMessage.textContent = "文件读取失败，请重新选择";
+                };
+                
+                // 尝试多种编码格式
+                const encodings = ['UTF-8', 'GBK', 'GB2312', 'UTF-16'];
+                let encodingIndex = 0;
+                
+                function tryNextEncoding() {
+                    if (encodingIndex >= encodings.length) {
+                        statusMessage.textContent = "无法读取文件，请检查文件编码或重新选择";
+                        return;
+                    }
+                    
+                    const encoding = encodings[encodingIndex];
+                    console.log('尝试使用编码:', encoding);
+                    
+                    try {
+                        reader.readAsText(file, encoding);
+                    } catch (error) {
+                        console.error('编码读取失败:', encoding, error);
+                        encodingIndex++;
+                        setTimeout(tryNextEncoding, 100);
+                    }
+                }
+                
+                // 开始尝试读取
+                tryNextEncoding();
+                
+                // 添加超时处理
+                setTimeout(() => {
+                    if (statusMessage.innerHTML.includes('正在加载字幕')) {
+                        statusMessage.textContent = "字幕加载超时，请检查文件格式或重新上传";
+                        console.log('字幕加载超时');
+                    }
+                }, 15000);
+            });
+            
+            // 辅助函数：跳转到指定字幕
+            function jumpToSubtitle(index) {
+                if (subtitles.length === 0) return;
+                
+                currentSubIndex = index;
+                videoPlayer.currentTime = subtitles[index].start;
+                loopCount = 0;
+                loopCounter.textContent = `循环: ${loopCount}`;
+                updateSubtitles();
+                
+                // 更新循环范围
+                if (isLooping) {
+                    currentLoopStart = subtitles[index].start;
+                    currentLoopEnd = subtitles[index].end;
+                }
+                
+                if (videoPlayer.paused) {
+                    videoPlayer.play().then(() => {
+                        playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
+                    }).catch(error => {
+                        console.error('跳转播放失败:', error);
+                    });
+                }
+            }
+            
+
+            
+            // 辅助函数：解析字幕文件
+            function parseSubtitle(text) {
+                console.log('开始解析字幕文件，内容长度:', text.length);
+                console.log('字幕文件前100个字符:', text.substring(0, 100));
+                
+                const subtitles = [];
+                const blocks = text.split(/\n\s*\n/);
+                
+                console.log('分割后的块数量:', blocks.length);
+                
+                for (let i = 0; i < blocks.length; i++) {
+                    const block = blocks[i];
+                    if (!block.trim()) continue;
+                    
+                    const lines = block.split('\n').map(line => line.trim()).filter(line => line !== '');
+                    
+                    console.log(`块 ${i + 1} 行数:`, lines.length, '内容:', lines);
+                    
+                    // 至少需要序号、时间轴和内容
+                    if (lines.length < 3) {
+                        console.log(`块 ${i + 1} 行数不足，跳过`);
+                        continue;
+                    }
+                    
+                    // 解析时间轴
+                    const timeline = lines[1];
+                    const timeParts = timeline.split('-->');
+                    if (timeParts.length !== 2) {
+                        console.log(`块 ${i + 1} 时间轴格式错误:`, timeline);
+                        continue;
+                    }
+                    
+                    const startTime = parseTime(timeParts[0].trim());
+                    const endTime = parseTime(timeParts[1].trim());
+                    
+                    console.log(`块 ${i + 1} 时间:`, startTime, '->', endTime);
+                    
+                    // 内容行 - 取第2行之后的所有行
+                    const contentLines = lines.slice(2);
+                    
+                    // 尝试分离中英文字幕
+                    let eng = "";
+                    let chi = "";
+                    
+                    // 策略1：一行英文一行中文
+                    if (contentLines.length >= 2) {
+                        // 第一行假设为英文，第二行假设为中文
+                        eng = contentLines[0];
+                        chi = contentLines[1];
+                        console.log(`块 ${i + 1} 分离结果 - 英文:`, eng, '中文:', chi);
+                    } 
+                    // 策略2：单行内容，尝试用括号分隔
+                    else if (contentLines.length === 1) {
+                        const content = contentLines[0];
+                        // 尝试匹配中括号或小括号中的中文内容
+                        const match = content.match(/(.*?)[（(](.+?)[)）](.*)/);
+                        if (match) {
+                            eng = (match[1] + match[3]).trim();
+                            chi = match[2].trim();
+                            console.log(`块 ${i + 1} 括号分离结果 - 英文:`, eng, '中文:', chi);
+                        } else {
+                            // 策略3：尝试用斜杠分隔
+                            const slashMatch = content.match(/(.*?)\/(.*)/);
+                            if (slashMatch) {
+                                eng = slashMatch[1].trim();
+                                chi = slashMatch[2].trim();
+                                console.log(`块 ${i + 1} 斜杠分离结果 - 英文:`, eng, '中文:', chi);
+                            } else {
+                                // 策略4：尝试用破折号分隔
+                                const dashMatch = content.match(/(.*?)\s*-\s*(.*)/);
+                                if (dashMatch) {
+                                    eng = dashMatch[1].trim();
+                                    chi = dashMatch[2].trim();
+                                    console.log(`块 ${i + 1} 破折号分离结果 - 英文:`, eng, '中文:', chi);
+                                } else {
+                                    // 无法分离，整行作为英文
+                                    eng = content;
+                                    chi = content;
+                                    console.log(`块 ${i + 1} 无法分离，使用原内容:`, content);
+                                }
+                            }
+                        }
+                    }
+                    
+                    subtitles.push({
+                        start: startTime,
+                        end: endTime,
+                        eng: eng,
+                        chi: chi
+                    });
+                }
+                
+                console.log('解析完成，总字幕数:', subtitles.length);
+                return subtitles;
+            }
+            
+            // 辅助函数：转换时间格式
+            function parseTime(timeStr) {
+                // 支持两种格式：00:00:05,000 和 00:00:05.000
+                const parts = timeStr.split(/[:,.]/);
+                if (parts.length !== 4) return 0;
+                
+                const hours = parseInt(parts[0]);
+                const minutes = parseInt(parts[1]);
+                const seconds = parseInt(parts[2]);
+                const milliseconds = parseInt(parts[3]);
+                
+                return hours * 3600 + minutes * 60 + seconds + milliseconds / 1000;
+            }
+            
+            // 辅助函数：更新状态消息样式
+            function updateStatusMessage(message, type = 'info') {
+                statusMessage.textContent = message;
+                statusMessage.className = 'status ' + type;
+            }
+            
+            // 辅助函数：iOS设备文件类型检测
+            function isIOSDevice() {
+                return /iPad|iPhone|iPod/.test(navigator.userAgent) || 
+                       (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+            }
+            
+            // 辅助函数：改进的文件类型验证
+            function validateSubtitleFile(file) {
+                const fileName = file.name.toLowerCase();
+                const fileExt = fileName.substring(fileName.lastIndexOf('.'));
+                
+                console.log('文件验证 - 文件名:', fileName, '扩展名:', fileExt, 'MIME类型:', file.type);
+                
+                // 支持的扩展名
+                const validExtensions = ['.srt', '.vtt', '.txt'];
+                
+                // 移动设备：放宽验证条件，主要检查文件扩展名
+                if (isIOSDevice() || /Android|Mobile|Tablet/.test(navigator.userAgent)) {
+                    return validExtensions.includes(fileExt) || 
+                           fileName.includes('.srt') ||
+                           fileName.includes('.vtt') ||
+                           fileName.includes('.txt') ||
+                           file.type === 'text/plain' || 
+                           file.type === 'application/octet-stream' ||
+                           file.type === '' || // 某些设备可能返回空字符串
+                           file.type === 'application/unknown' ||
+                           file.type === 'text/plain; charset=utf-8' ||
+                           file.type === 'text/plain; charset=gbk' ||
+                           file.type === 'text/plain; charset=gb2312' ||
+                           file.type === 'text/plain; charset=big5';
+                } else {
+                    // 桌面设备：使用更严格的文件类型检查
+                    return validExtensions.includes(fileExt) || 
+                           file.type === 'text/plain' || 
+                           file.type === 'application/octet-stream' ||
+                           fileName.includes('.srt') ||
+                           fileName.includes('.vtt') ||
+                           fileName.includes('.txt');
+                }
+            }
+            
+            // ==================== 单词查询功能 ====================
+            
+            // 初始化单词查询功能
+            function initializeWordQuery() {
+                console.log('初始化单词查询功能...');
+                
+                // 初始化词典数据
+                initializeDictionary();
+                
+                // 初始化考试词汇列表
+                initializeExamWordLists();
+                
+                // 绑定弹窗关闭事件
+                popupClose.addEventListener('click', hideWordPopup);
+                
+                // 绑定点击外部关闭弹窗
+                document.addEventListener('click', function(e) {
+                    if (!wordPopup.contains(e.target) && !e.target.classList.contains('word-clickable')) {
+                        hideWordPopup();
+                    }
+                });
+                
+                // 测试词典是否正常加载
+                console.log('词典加载测试 - 测试单词 "hello":', wordDictionary['hello']);
+                console.log('词典加载测试 - 测试单词 "ability":', wordDictionary['ability']);
+                console.log('词典加载测试 - 测试单词 "academic":', wordDictionary['academic']);
+                
+                console.log('单词查询功能初始化完成');
+            }
+            
+            // 初始化词典数据
+            function initializeDictionary() {
+                // 扩展词汇词典（包含四级、六级、八级、雅思、托福、GRE、高考、考研词汇）
+                wordDictionary = {
+                    // 四级词汇
+                    'abandon': {
+                        phonetic: '/əˈbændən/',
+                        meaning: 'v. 放弃，遗弃；离弃',
+                        exams: ['cet4'],
+                        example: 'He would never abandon his friends in trouble.'
+                    },
+                    'ability': {
+                        phonetic: '/əˈbɪləti/',
+                        meaning: 'n. 能力，才能；本领',
+                        exams: ['cet4'],
+                        example: 'She has the ability to learn languages quickly.'
+                    },
+                    'abroad': {
+                        phonetic: '/əˈbrɔːd/',
+                        meaning: 'adv. 在国外，海外',
+                        exams: ['cet4'],
+                        example: 'He went abroad to study English.'
+                    },
+                    'absolute': {
+                        phonetic: '/ˈæbsəluːt/',
+                        meaning: 'adj. 绝对的，完全的',
+                        exams: ['cet4'],
+                        example: 'I have absolute confidence in your ability.'
+                    },
+                    'accept': {
+                        phonetic: '/əkˈsept/',
+                        meaning: 'v. 接受，同意',
+                        exams: ['cet4'],
+                        example: 'I accept your apology.'
+                    },
+                    
+                    // 六级词汇
+                    'academic': {
+                        phonetic: '/ˌækəˈdemɪk/',
+                        meaning: 'adj. 学术的，理论的',
+                        exams: ['cet6'],
+                        example: 'This is an academic discussion.'
+                    },
+                    'accomplish': {
+                        phonetic: '/əˈkʌmplɪʃ/',
+                        meaning: 'v. 完成，实现',
+                        exams: ['cet6'],
+                        example: 'She accomplished all her goals.'
+                    },
+                    'accurate': {
+                        phonetic: '/ˈækjərət/',
+                        meaning: 'adj. 准确的，精确的',
+                        exams: ['cet6'],
+                        example: 'The weather forecast was accurate.'
+                    },
+                    'achieve': {
+                        phonetic: '/əˈtʃiːv/',
+                        meaning: 'v. 达到，实现',
+                        exams: ['cet6'],
+                        example: 'He achieved great success in his career.'
+                    },
+                    'adequate': {
+                        phonetic: '/ˈædɪkwət/',
+                        meaning: 'adj. 充足的，适当的',
+                        exams: ['cet6'],
+                        example: 'The food was adequate for everyone.'
+                    },
+                    
+                    // 八级词汇
+                    'aberrant': {
+                        phonetic: '/əˈberənt/',
+                        meaning: 'adj. 反常的，异常的',
+                        exams: ['cet8'],
+                        example: 'His behavior was aberrant.'
+                    },
+                    'abeyance': {
+                        phonetic: '/əˈbeɪəns/',
+                        meaning: 'n. 暂停，中止',
+                        exams: ['cet8'],
+                        example: 'The project is in abeyance.'
+                    },
+                    'abstruse': {
+                        phonetic: '/æbˈstruːs/',
+                        meaning: 'adj. 深奥的，晦涩的',
+                        exams: ['cet8'],
+                        example: 'The text was too abstruse for me.'
+                    },
+                    
+                    // 雅思词汇
+                    'accommodation': {
+                        phonetic: '/əˌkɒməˈdeɪʃn/',
+                        meaning: 'n. 住宿，膳宿',
+                        exams: ['ielts'],
+                        example: 'The hotel provides excellent accommodation.'
+                    },
+                    'accomplish': {
+                        phonetic: '/əˈkʌmplɪʃ/',
+                        meaning: 'v. 完成，实现',
+                        exams: ['ielts'],
+                        example: 'She accomplished her mission successfully.'
+                    },
+                    'accurate': {
+                        phonetic: '/ˈækjərət/',
+                        meaning: 'adj. 准确的，精确的',
+                        exams: ['ielts'],
+                        example: 'The measurements were accurate.'
+                    },
+                    
+                    // 托福词汇
+                    'academic': {
+                        phonetic: '/ˌækəˈdemɪk/',
+                        meaning: 'adj. 学术的，理论的',
+                        exams: ['toefl'],
+                        example: 'This is an academic paper.'
+                    },
+                    'accomplish': {
+                        phonetic: '/əˈkʌmplɪʃ/',
+                        meaning: 'v. 完成，实现',
+                        exams: ['toefl'],
+                        example: 'He accomplished his task on time.'
+                    },
+                    
+                    // GRE词汇
+                    'aberrant': {
+                        phonetic: '/əˈberənt/',
+                        meaning: 'adj. 反常的，异常的',
+                        exams: ['gre'],
+                        example: 'The aberrant behavior was concerning.'
+                    },
+                    'abeyance': {
+                        phonetic: '/əˈbeɪəns/',
+                        meaning: 'n. 暂停，中止',
+                        exams: ['gre'],
+                        example: 'The matter is held in abeyance.'
+                    },
+                    
+                    // 高考词汇
+                    'ability': {
+                        phonetic: '/əˈbɪləti/',
+                        meaning: 'n. 能力，才能',
+                        exams: ['gaokao'],
+                        example: 'He has the ability to solve problems.'
+                    },
+                    'abroad': {
+                        phonetic: '/əˈbrɔːd/',
+                        meaning: 'adv. 在国外，海外',
+                        exams: ['gaokao'],
+                        example: 'She went abroad to study.'
+                    },
+                    'accept': {
+                        phonetic: '/əkˈsept/',
+                        meaning: 'v. 接受，同意',
+                        exams: ['gaokao'],
+                        example: 'I accept your invitation.'
+                    },
+                    
+                    // 更多常用词汇
+                    'hello': {
+                        phonetic: '/həˈləʊ/',
+                        meaning: 'int. 你好，喂',
+                        exams: [],
+                        example: 'Hello, how are you today?'
+                    },
+                    'world': {
+                        phonetic: '/wɜːld/',
+                        meaning: 'n. 世界，地球',
+                        exams: [],
+                        example: 'The world is changing rapidly.'
+                    },
+                    'good': {
+                        phonetic: '/ɡʊd/',
+                        meaning: 'adj. 好的，优秀的',
+                        exams: [],
+                        example: 'This is a good book.'
+                    },
+                    'time': {
+                        phonetic: '/taɪm/',
+                        meaning: 'n. 时间，时刻',
+                        exams: [],
+                        example: 'Time flies when you are having fun.'
+                    },
+                    'people': {
+                        phonetic: '/ˈpiːpl/',
+                        meaning: 'n. 人们，人民',
+                        exams: [],
+                        example: 'Many people attended the meeting.'
+                    },
+                    'year': {
+                        phonetic: '/jɪə(r)/',
+                        meaning: 'n. 年，年度',
+                        exams: [],
+                        example: 'Happy New Year!'
+                    },
+                    'way': {
+                        phonetic: '/weɪ/',
+                        meaning: 'n. 方式，方法',
+                        exams: [],
+                        example: 'This is the best way to solve the problem.'
+                    },
+                    'day': {
+                        phonetic: '/deɪ/',
+                        meaning: 'n. 天，日子',
+                        exams: [],
+                        example: 'Have a nice day!'
+                    },
+                    'man': {
+                        phonetic: '/mæn/',
+                        meaning: 'n. 男人，人类',
+                        exams: [],
+                        example: 'Every man has his own opinion.'
+                    },
+                    'thing': {
+                        phonetic: '/θɪŋ/',
+                        meaning: 'n. 事物，东西',
+                        exams: [],
+                        example: 'This thing is very important.'
+                    },
+                    'woman': {
+                        phonetic: '/ˈwʊmən/',
+                        meaning: 'n. 女人，女性',
+                        exams: [],
+                        example: 'She is a strong woman.'
+                    },
+                    'life': {
+                        phonetic: '/laɪf/',
+                        meaning: 'n. 生命，生活',
+                        exams: [],
+                        example: 'Life is beautiful.'
+                    },
+                    'child': {
+                        phonetic: '/tʃaɪld/',
+                        meaning: 'n. 孩子，儿童',
+                        exams: [],
+                        example: 'Every child deserves love.'
+                    },
+                    'work': {
+                        phonetic: '/wɜːk/',
+                        meaning: 'n. 工作，劳动 v. 工作',
+                        exams: [],
+                        example: 'I work hard every day.'
+                    },
+                    'place': {
+                        phonetic: '/pleɪs/',
+                        meaning: 'n. 地方，位置',
+                        exams: [],
+                        example: 'This is a beautiful place.'
+                    },
+                    'case': {
+                        phonetic: '/keɪs/',
+                        meaning: 'n. 情况，案例',
+                        exams: [],
+                        example: 'In this case, we need to be careful.'
+                    },
+                    'week': {
+                        phonetic: '/wiːk/',
+                        meaning: 'n. 周，星期',
+                        exams: [],
+                        example: 'I will see you next week.'
+                    },
+                    'company': {
+                        phonetic: '/ˈkʌmpəni/',
+                        meaning: 'n. 公司，陪伴',
+                        exams: [],
+                        example: 'I work for a big company.'
+                    },
+                    'system': {
+                        phonetic: '/ˈsɪstəm/',
+                        meaning: 'n. 系统，制度',
+                        exams: [],
+                        example: 'The computer system is working well.'
+                    },
+                    'program': {
+                        phonetic: '/ˈprəʊɡræm/',
+                        meaning: 'n. 程序，节目',
+                        exams: [],
+                        example: 'This program is very useful.'
+                    },
+                    'question': {
+                        phonetic: '/ˈkwestʃən/',
+                        meaning: 'n. 问题，疑问',
+                        exams: [],
+                        example: 'Do you have any questions?'
+                    },
+                    'government': {
+                        phonetic: '/ˈɡʌvənmənt/',
+                        meaning: 'n. 政府，政体',
+                        exams: [],
+                        example: 'The government made a new policy.'
+                    },
+                    'number': {
+                        phonetic: '/ˈnʌmbə(r)/',
+                        meaning: 'n. 数字，号码',
+                        exams: [],
+                        example: 'What is your phone number?'
+                    },
+                    'group': {
+                        phonetic: '/ɡruːp/',
+                        meaning: 'n. 组，群',
+                        exams: [],
+                        example: 'We work as a group.'
+                    },
+                    'problem': {
+                        phonetic: '/ˈprɒbləm/',
+                        meaning: 'n. 问题，难题',
+                        exams: [],
+                        example: 'This is a difficult problem.'
+                    },
+                    'fact': {
+                        phonetic: '/fækt/',
+                        meaning: 'n. 事实，真相',
+                        exams: [],
+                        example: 'The fact is that he is right.'
+                    },
+                    'water': {
+                        phonetic: '/ˈwɔːtə(r)/',
+                        meaning: 'n. 水',
+                        exams: [],
+                        example: 'I need to drink more water.'
+                    },
+                    'money': {
+                        phonetic: '/ˈmʌni/',
+                        meaning: 'n. 钱，金钱',
+                        exams: [],
+                        example: 'Money is not everything.'
+                    },
+                    'month': {
+                        phonetic: '/mʌnθ/',
+                        meaning: 'n. 月，月份',
+                        exams: [],
+                        example: 'I will travel next month.'
+                    },
+                    'lot': {
+                        phonetic: '/lɒt/',
+                        meaning: 'n. 很多，大量',
+                        exams: [],
+                        example: 'I have a lot of work to do.'
+                    },
+                    'right': {
+                        phonetic: '/raɪt/',
+                        meaning: 'adj. 正确的，右边的',
+                        exams: [],
+                        example: 'You are absolutely right.'
+                    },
+                    'study': {
+                        phonetic: '/ˈstʌdi/',
+                        meaning: 'v. 学习，研究 n. 学习',
+                        exams: [],
+                        example: 'I study English every day.'
+                    },
+                    'book': {
+                        phonetic: '/bʊk/',
+                        meaning: 'n. 书，书籍',
+                        exams: [],
+                        example: 'I love reading books.'
+                    },
+                    'eye': {
+                        phonetic: '/aɪ/',
+                        meaning: 'n. 眼睛',
+                        exams: [],
+                        example: 'She has beautiful eyes.'
+                    },
+                    'job': {
+                        phonetic: '/dʒɒb/',
+                        meaning: 'n. 工作，职业',
+                        exams: [],
+                        example: 'I have a good job.'
+                    },
+                    'word': {
+                        phonetic: '/wɜːd/',
+                        meaning: 'n. 单词，话语',
+                        exams: [],
+                        example: 'This is a new word for me.'
+                    },
+                    'business': {
+                        phonetic: '/ˈbɪznəs/',
+                        meaning: 'n. 商业，生意',
+                        exams: [],
+                        example: 'He runs his own business.'
+                    },
+                    'issue': {
+                        phonetic: '/ˈɪʃuː/',
+                        meaning: 'n. 问题，议题',
+                        exams: [],
+                        example: 'This is an important issue.'
+                    },
+                    'side': {
+                        phonetic: '/saɪd/',
+                        meaning: 'n. 边，侧面',
+                        exams: [],
+                        example: 'Please sit on this side.'
+                    },
+                    'kind': {
+                        phonetic: '/kaɪnd/',
+                        meaning: 'n. 种类，类型 adj. 善良的',
+                        exams: [],
+                        example: 'What kind of music do you like?'
+                    },
+                    'head': {
+                        phonetic: '/hed/',
+                        meaning: 'n. 头，头部',
+                        exams: [],
+                        example: 'He nodded his head.'
+                    },
+                    'house': {
+                        phonetic: '/haʊs/',
+                        meaning: 'n. 房子，住宅',
+                        exams: [],
+                        example: 'I live in a big house.'
+                    },
+                    'service': {
+                        phonetic: '/ˈsɜːvɪs/',
+                        meaning: 'n. 服务，服务',
+                        exams: [],
+                        example: 'The service here is excellent.'
+                    },
+                    'friend': {
+                        phonetic: '/frend/',
+                        meaning: 'n. 朋友',
+                        exams: [],
+                        example: 'She is my best friend.'
+                    },
+                    'father': {
+                        phonetic: '/ˈfɑːðə(r)/',
+                        meaning: 'n. 父亲',
+                        exams: [],
+                        example: 'My father is a teacher.'
+                    },
+                    'centre': {
+                        phonetic: '/ˈsentə(r)/',
+                        meaning: 'n. 中心，中央',
+                        exams: [],
+                        example: 'The city centre is very busy.'
+                    },
+                    'force': {
+                        phonetic: '/fɔːs/',
+                        meaning: 'n. 力量，武力',
+                        exams: [],
+                        example: 'The police force is well-trained.'
+                    },
+                    'education': {
+                        phonetic: '/ˌedʒuˈkeɪʃn/',
+                        meaning: 'n. 教育',
+                        exams: [],
+                        example: 'Education is very important.'
+                    },
+                    'care': {
+                        phonetic: '/keə(r)/',
+                        meaning: 'n. 关心，照顾',
+                        exams: [],
+                        example: 'Take care of yourself.'
+                    },
+                    'research': {
+                        phonetic: '/rɪˈsɜːtʃ/',
+                        meaning: 'n. 研究，调查',
+                        exams: [],
+                        example: 'He is doing research on cancer.'
+                    },
+                    'approach': {
+                        phonetic: '/əˈprəʊtʃ/',
+                        meaning: 'v. 接近，处理',
+                        exams: ['cet6'],
+                        example: 'We need to approach this problem differently.'
+                    },
+                    'available': {
+                        phonetic: '/əˈveɪləbl/',
+                        meaning: 'adj. 可用的，可获得的',
+                        exams: ['cet6'],
+                        example: 'The information is available online.'
+                    },
+                    'benefit': {
+                        phonetic: '/ˈbenɪfɪt/',
+                        meaning: 'n. 好处，利益',
+                        exams: ['cet6'],
+                        example: 'The new policy will benefit everyone.'
+                    },
+                    'challenge': {
+                        phonetic: '/ˈtʃælɪndʒ/',
+                        meaning: 'n. 挑战，难题',
+                        exams: ['cet6'],
+                        example: 'This is a great challenge for us.'
+                    },
+                    'develop': {
+                        phonetic: '/dɪˈveləp/',
+                        meaning: 'v. 发展，开发',
+                        exams: ['cet6'],
+                        example: 'We need to develop new skills.'
+                    },
+                    'environment': {
+                        phonetic: '/ɪnˈvaɪrənmənt/',
+                        meaning: 'n. 环境',
+                        exams: ['cet6'],
+                        example: 'We must protect the environment.'
+                    },
+                    'experience': {
+                        phonetic: '/ɪkˈspɪəriəns/',
+                        meaning: 'n. 经验，经历',
+                        exams: ['cet6'],
+                        example: 'She has a lot of experience in teaching.'
+                    },
+                    'function': {
+                        phonetic: '/ˈfʌŋkʃn/',
+                        meaning: 'n. 功能，作用',
+                        exams: ['cet6'],
+                        example: 'This function is very useful.'
+                    },
+                    'generate': {
+                        phonetic: '/ˈdʒenəreɪt/',
+                        meaning: 'v. 产生，生成',
+                        exams: ['cet6'],
+                        example: 'The machine can generate electricity.'
+                    },
+                    'identify': {
+                        phonetic: '/aɪˈdentɪfaɪ/',
+                        meaning: 'v. 识别，确认',
+                        exams: ['cet6'],
+                        example: 'Can you identify this person?'
+                    },
+                    'implement': {
+                        phonetic: '/ˈɪmplɪment/',
+                        meaning: 'v. 实施，执行',
+                        exams: ['cet6'],
+                        example: 'We will implement this plan next month.'
+                    },
+                    'indicate': {
+                        phonetic: '/ˈɪndɪkeɪt/',
+                        meaning: 'v. 指示，表明',
+                        exams: ['cet6'],
+                        example: 'The signs indicate the way to go.'
+                    },
+                    'maintain': {
+                        phonetic: '/meɪnˈteɪn/',
+                        meaning: 'v. 维持，保持',
+                        exams: ['cet6'],
+                        example: 'We must maintain good relationships.'
+                    },
+                    'obtain': {
+                        phonetic: '/əbˈteɪn/',
+                        meaning: 'v. 获得，得到',
+                        exams: ['cet6'],
+                        example: 'He obtained permission to leave early.'
+                    },
+                    'participate': {
+                        phonetic: '/pɑːˈtɪsɪpeɪt/',
+                        meaning: 'v. 参与，参加',
+                        exams: ['cet6'],
+                        example: 'Everyone can participate in this activity.'
+                    },
+                    'potential': {
+                        phonetic: '/pəˈtenʃl/',
+                        meaning: 'adj. 潜在的，可能的',
+                        exams: ['cet6'],
+                        example: 'He has great potential for success.'
+                    },
+                    'previous': {
+                        phonetic: '/ˈpriːviəs/',
+                        meaning: 'adj. 以前的，先前的',
+                        exams: ['cet6'],
+                        example: 'In the previous chapter, we discussed...'
+                    },
+                    'require': {
+                        phonetic: '/rɪˈkwaɪə(r)/',
+                        meaning: 'v. 需要，要求',
+                        exams: ['cet6'],
+                        example: 'This job requires experience.'
+                    },
+                    'significant': {
+                        phonetic: '/sɪɡˈnɪfɪkənt/',
+                        meaning: 'adj. 重要的，显著的',
+                        exams: ['cet6'],
+                        example: 'This is a significant discovery.'
+                    },
+                    'specific': {
+                        phonetic: '/spəˈsɪfɪk/',
+                        meaning: 'adj. 具体的，特定的',
+                        exams: ['cet6'],
+                        example: 'Please give me specific instructions.'
+                    },
+                    'structure': {
+                        phonetic: '/ˈstrʌktʃə(r)/',
+                        meaning: 'n. 结构，构造',
+                        exams: ['cet6'],
+                        example: 'The structure of this building is complex.'
+                    },
+                    'technology': {
+                        phonetic: '/tekˈnɒlədʒi/',
+                        meaning: 'n. 技术，科技',
+                        exams: ['cet6'],
+                        example: 'Modern technology is amazing.'
+                    },
+                    'traditional': {
+                        phonetic: '/trəˈdɪʃənl/',
+                        meaning: 'adj. 传统的，惯例的',
+                        exams: ['cet6'],
+                        example: 'This is a traditional method.'
+                    },
+                    'understand': {
+                        phonetic: '/ˌʌndəˈstænd/',
+                        meaning: 'v. 理解，明白',
+                        exams: ['cet6'],
+                        example: 'I understand your point.'
+                    },
+                    'various': {
+                        phonetic: '/ˈveəriəs/',
+                        meaning: 'adj. 各种各样的',
+                        exams: ['cet6'],
+                        example: 'There are various options available.'
+                    },
+                    'welfare': {
+                        phonetic: '/ˈwelfeə(r)/',
+                        meaning: 'n. 福利，福祉',
+                        exams: ['cet6'],
+                        example: 'The government cares about people\'s welfare.'
+                    },
+                    
+                    // 八级词汇
+                    'aberrant': {
+                        phonetic: '/əˈberənt/',
+                        meaning: 'adj. 反常的，异常的',
+                        exams: ['cet8'],
+                        example: 'His behavior was aberrant.'
+                    },
+                    'abeyance': {
+                        phonetic: '/əˈbeɪəns/',
+                        meaning: 'n. 暂停，中止',
+                        exams: ['cet8'],
+                        example: 'The project is in abeyance.'
+                    },
+                    'abstruse': {
+                        phonetic: '/æbˈstruːs/',
+                        meaning: 'adj. 深奥的，晦涩的',
+                        exams: ['cet8'],
+                        example: 'The text was too abstruse for me.'
+                    },
+                    'acquiesce': {
+                        phonetic: '/ˌækwiˈes/',
+                        meaning: 'v. 默许，默认',
+                        exams: ['cet8'],
+                        example: 'He acquiesced to their demands.'
+                    },
+                    'adamant': {
+                        phonetic: '/ˈædəmənt/',
+                        meaning: 'adj. 坚决的，固执的',
+                        exams: ['cet8'],
+                        example: 'She was adamant about her decision.'
+                    },
+                    
+                    // 雅思词汇
+                    'accommodation': {
+                        phonetic: '/əˌkɒməˈdeɪʃn/',
+                        meaning: 'n. 住宿，膳宿',
+                        exams: ['ielts'],
+                        example: 'The hotel provides excellent accommodation.'
+                    },
+                    'accomplish': {
+                        phonetic: '/əˈkʌmplɪʃ/',
+                        meaning: 'v. 完成，实现',
+                        exams: ['ielts'],
+                        example: 'She accomplished her mission successfully.'
+                    },
+                    'accurate': {
+                        phonetic: '/ˈækjərət/',
+                        meaning: 'adj. 准确的，精确的',
+                        exams: ['ielts'],
+                        example: 'The measurements were accurate.'
+                    },
+                    'adequate': {
+                        phonetic: '/ˈædɪkwət/',
+                        meaning: 'adj. 充足的，适当的',
+                        exams: ['ielts'],
+                        example: 'The food was adequate for everyone.'
+                    },
+                    'administration': {
+                        phonetic: '/ədˌmɪnɪˈstreɪʃn/',
+                        meaning: 'n. 管理，行政',
+                        exams: ['ielts'],
+                        example: 'The administration is efficient.'
+                    },
+                    
+                    // 托福词汇
+                    'academic': {
+                        phonetic: '/ˌækəˈdemɪk/',
+                        meaning: 'adj. 学术的，理论的',
+                        exams: ['toefl'],
+                        example: 'This is an academic paper.'
+                    },
+                    'accomplish': {
+                        phonetic: '/əˈkʌmplɪʃ/',
+                        meaning: 'v. 完成，实现',
+                        exams: ['toefl'],
+                        example: 'He accomplished his task on time.'
+                    },
+                    'achieve': {
+                        phonetic: '/əˈtʃiːv/',
+                        meaning: 'v. 达到，实现',
+                        exams: ['toefl'],
+                        example: 'He achieved great success.'
+                    },
+                    'adequate': {
+                        phonetic: '/ˈædɪkwət/',
+                        meaning: 'adj. 充足的，适当的',
+                        exams: ['toefl'],
+                        example: 'The preparation was adequate.'
+                    },
+                    'administration': {
+                        phonetic: '/ədˌmɪnɪˈstreɪʃn/',
+                        meaning: 'n. 管理，行政',
+                        exams: ['toefl'],
+                        example: 'The administration is responsible.'
+                    },
+                    
+                    // GRE词汇
+                    'aberrant': {
+                        phonetic: '/əˈberənt/',
+                        meaning: 'adj. 反常的，异常的',
+                        exams: ['gre'],
+                        example: 'The aberrant behavior was concerning.'
+                    },
+                    'abeyance': {
+                        phonetic: '/əˈbeɪəns/',
+                        meaning: 'n. 暂停，中止',
+                        exams: ['gre'],
+                        example: 'The matter is held in abeyance.'
+                    },
+                    'abstruse': {
+                        phonetic: '/æbˈstruːs/',
+                        meaning: 'adj. 深奥的，晦涩的',
+                        exams: ['gre'],
+                        example: 'The abstruse theory was difficult to understand.'
+                    },
+                    'acquiesce': {
+                        phonetic: '/ˌækwiˈes/',
+                        meaning: 'v. 默许，默认',
+                        exams: ['gre'],
+                        example: 'He acquiesced to the proposal.'
+                    },
+                    'adamant': {
+                        phonetic: '/ˈædəmənt/',
+                        meaning: 'adj. 坚决的，固执的',
+                        exams: ['gre'],
+                        example: 'She was adamant in her refusal.'
+                    },
+                    
+                    // 考研词汇
+                    'abandon': {
+                        phonetic: '/əˈbændən/',
+                        meaning: 'v. 放弃，遗弃',
+                        exams: ['kaoyan'],
+                        example: 'He would never abandon his principles.'
+                    },
+                    'ability': {
+                        phonetic: '/əˈbɪləti/',
+                        meaning: 'n. 能力，才能',
+                        exams: ['kaoyan'],
+                        example: 'She has the ability to solve complex problems.'
+                    },
+                    'academic': {
+                        phonetic: '/ˌækəˈdemɪk/',
+                        meaning: 'adj. 学术的，理论的',
+                        exams: ['kaoyan'],
+                        example: 'This is an academic discussion.'
+                    },
+                    'accomplish': {
+                        phonetic: '/əˈkʌmplɪʃ/',
+                        meaning: 'v. 完成，实现',
+                        exams: ['kaoyan'],
+                        example: 'He accomplished his goals.'
+                    },
+                    'accurate': {
+                        phonetic: '/ˈækjərət/',
+                        meaning: 'adj. 准确的，精确的',
+                        exams: ['kaoyan'],
+                        example: 'The data is accurate.'
+                    },
+                    
+                    // 高考词汇
+                    'ability': {
+                        phonetic: '/əˈbɪləti/',
+                        meaning: 'n. 能力，才能',
+                        exams: ['gaokao'],
+                        example: 'He has the ability to solve problems.'
+                    },
+                    'abroad': {
+                        phonetic: '/əˈbrɔːd/',
+                        meaning: 'adv. 在国外，海外',
+                        exams: ['gaokao'],
+                        example: 'She went abroad to study.'
+                    },
+                    'accept': {
+                        phonetic: '/əkˈsept/',
+                        meaning: 'v. 接受，同意',
+                        exams: ['gaokao'],
+                        example: 'I accept your invitation.'
+                    },
+                    'achieve': {
+                        phonetic: '/əˈtʃiːv/',
+                        meaning: 'v. 达到，实现',
+                        exams: ['gaokao'],
+                        example: 'He achieved his dream.'
+                    },
+                    'active': {
+                        phonetic: '/ˈæktɪv/',
+                        meaning: 'adj. 活跃的，积极的',
+                        exams: ['gaokao'],
+                        example: 'She is very active in class.'
+                    },
+                    
+                    // 更多常用词汇
+                    'hello': {
+                        phonetic: '/həˈləʊ/',
+                        meaning: 'int. 你好，喂',
+                        exams: [],
+                        example: 'Hello, how are you today?'
+                    },
+                    'world': {
+                        phonetic: '/wɜːld/',
+                        meaning: 'n. 世界，地球',
+                        exams: [],
+                        example: 'The world is changing rapidly.'
+                    },
+                    'good': {
+                        phonetic: '/ɡʊd/',
+                        meaning: 'adj. 好的，优秀的',
+                        exams: [],
+                        example: 'This is a good book.'
+                    },
+                    'time': {
+                        phonetic: '/taɪm/',
+                        meaning: 'n. 时间，时刻',
+                        exams: [],
+                        example: 'Time flies when you are having fun.'
+                    },
+                    'people': {
+                        phonetic: '/ˈpiːpl/',
+                        meaning: 'n. 人们，人民',
+                        exams: [],
+                        example: 'Many people attended the meeting.'
+                    },
+                    'year': {
+                        phonetic: '/jɪə(r)/',
+                        meaning: 'n. 年，年度',
+                        exams: [],
+                        example: 'Happy New Year!'
+                    },
+                    'way': {
+                        phonetic: '/weɪ/',
+                        meaning: 'n. 方式，方法',
+                        exams: [],
+                        example: 'This is the best way to solve the problem.'
+                    },
+                    'day': {
+                        phonetic: '/deɪ/',
+                        meaning: 'n. 天，日子',
+                        exams: [],
+                        example: 'Have a nice day!'
+                    },
+                    'man': {
+                        phonetic: '/mæn/',
+                        meaning: 'n. 男人，人类',
+                        exams: [],
+                        example: 'Every man has his own opinion.'
+                    },
+                    'thing': {
+                        phonetic: '/θɪŋ/',
+                        meaning: 'n. 事物，东西',
+                        exams: [],
+                        example: 'This thing is very important.'
+                    },
+                    'woman': {
+                        phonetic: '/ˈwʊmən/',
+                        meaning: 'n. 女人，女性',
+                        exams: [],
+                        example: 'She is a strong woman.'
+                    },
+                    'life': {
+                        phonetic: '/laɪf/',
+                        meaning: 'n. 生命，生活',
+                        exams: [],
+                        example: 'Life is beautiful.'
+                    },
+                    'child': {
+                        phonetic: '/tʃaɪld/',
+                        meaning: 'n. 孩子，儿童',
+                        exams: [],
+                        example: 'Every child deserves love.'
+                    },
+                    'work': {
+                        phonetic: '/wɜːk/',
+                        meaning: 'n. 工作，劳动 v. 工作',
+                        exams: [],
+                        example: 'I work hard every day.'
+                    },
+                    'place': {
+                        phonetic: '/pleɪs/',
+                        meaning: 'n. 地方，位置',
+                        exams: [],
+                        example: 'This is a beautiful place.'
+                    },
+                    'case': {
+                        phonetic: '/keɪs/',
+                        meaning: 'n. 情况，案例',
+                        exams: [],
+                        example: 'In this case, we need to be careful.'
+                    },
+                    'week': {
+                        phonetic: '/wiːk/',
+                        meaning: 'n. 周，星期',
+                        exams: [],
+                        example: 'I will see you next week.'
+                    },
+                    'company': {
+                        phonetic: '/ˈkʌmpəni/',
+                        meaning: 'n. 公司，陪伴',
+                        exams: [],
+                        example: 'I work for a big company.'
+                    },
+                    'system': {
+                        phonetic: '/ˈsɪstəm/',
+                        meaning: 'n. 系统，制度',
+                        exams: [],
+                        example: 'The computer system is working well.'
+                    },
+                    'program': {
+                        phonetic: '/ˈprəʊɡræm/',
+                        meaning: 'n. 程序，节目',
+                        exams: [],
+                        example: 'This program is very useful.'
+                    },
+                    'question': {
+                        phonetic: '/ˈkwestʃən/',
+                        meaning: 'n. 问题，疑问',
+                        exams: [],
+                        example: 'Do you have any questions?'
+                    },
+                    'government': {
+                        phonetic: '/ˈɡʌvənmənt/',
+                        meaning: 'n. 政府，政体',
+                        exams: [],
+                        example: 'The government made a new policy.'
+                    },
+                    'number': {
+                        phonetic: '/ˈnʌmbə(r)/',
+                        meaning: 'n. 数字，号码',
+                        exams: [],
+                        example: 'What is your phone number?'
+                    },
+                    'group': {
+                        phonetic: '/ɡruːp/',
+                        meaning: 'n. 组，群',
+                        exams: [],
+                        example: 'We work as a group.'
+                    },
+                    'problem': {
+                        phonetic: '/ˈprɒbləm/',
+                        meaning: 'n. 问题，难题',
+                        exams: [],
+                        example: 'This is a difficult problem.'
+                    },
+                    'fact': {
+                        phonetic: '/fækt/',
+                        meaning: 'n. 事实，真相',
+                        exams: [],
+                        example: 'The fact is that he is right.'
+                    },
+                    'water': {
+                        phonetic: '/ˈwɔːtə(r)/',
+                        meaning: 'n. 水',
+                        exams: [],
+                        example: 'I need to drink more water.'
+                    },
+                    'money': {
+                        phonetic: '/ˈmʌni/',
+                        meaning: 'n. 钱，金钱',
+                        exams: [],
+                        example: 'Money is not everything.'
+                    },
+                    'month': {
+                        phonetic: '/mʌnθ/',
+                        meaning: 'n. 月，月份',
+                        exams: [],
+                        example: 'I will travel next month.'
+                    },
+                    'lot': {
+                        phonetic: '/lɒt/',
+                        meaning: 'n. 很多，大量',
+                        exams: [],
+                        example: 'I have a lot of work to do.'
+                    },
+                    'right': {
+                        phonetic: '/raɪt/',
+                        meaning: 'adj. 正确的，右边的',
+                        exams: [],
+                        example: 'You are absolutely right.'
+                    },
+                    'study': {
+                        phonetic: '/ˈstʌdi/',
+                        meaning: 'v. 学习，研究 n. 学习',
+                        exams: [],
+                        example: 'I study English every day.'
+                    },
+                    'book': {
+                        phonetic: '/bʊk/',
+                        meaning: 'n. 书，书籍',
+                        exams: [],
+                        example: 'I love reading books.'
+                    },
+                    'eye': {
+                        phonetic: '/aɪ/',
+                        meaning: 'n. 眼睛',
+                        exams: [],
+                        example: 'She has beautiful eyes.'
+                    },
+                    'job': {
+                        phonetic: '/dʒɒb/',
+                        meaning: 'n. 工作，职业',
+                        exams: [],
+                        example: 'I have a good job.'
+                    },
+                    'word': {
+                        phonetic: '/wɜːd/',
+                        meaning: 'n. 单词，话语',
+                        exams: [],
+                        example: 'This is a new word for me.'
+                    },
+                    'business': {
+                        phonetic: '/ˈbɪznəs/',
+                        meaning: 'n. 商业，生意',
+                        exams: [],
+                        example: 'He runs his own business.'
+                    },
+                    'issue': {
+                        phonetic: '/ˈɪʃuː/',
+                        meaning: 'n. 问题，议题',
+                        exams: [],
+                        example: 'This is an important issue.'
+                    },
+                    'side': {
+                        phonetic: '/saɪd/',
+                        meaning: 'n. 边，侧面',
+                        exams: [],
+                        example: 'Please sit on this side.'
+                    },
+                    'kind': {
+                        phonetic: '/kaɪnd/',
+                        meaning: 'n. 种类，类型 adj. 善良的',
+                        exams: [],
+                        example: 'What kind of music do you like?'
+                    },
+                    'head': {
+                        phonetic: '/hed/',
+                        meaning: 'n. 头，头部',
+                        exams: [],
+                        example: 'He nodded his head.'
+                    },
+                    'house': {
+                        phonetic: '/haʊs/',
+                        meaning: 'n. 房子，住宅',
+                        exams: [],
+                        example: 'I live in a big house.'
+                    },
+                    'service': {
+                        phonetic: '/ˈsɜːvɪs/',
+                        meaning: 'n. 服务，服务',
+                        exams: [],
+                        example: 'The service here is excellent.'
+                    },
+                    'friend': {
+                        phonetic: '/frend/',
+                        meaning: 'n. 朋友',
+                        exams: [],
+                        example: 'She is my best friend.'
+                    },
+                    'father': {
+                        phonetic: '/ˈfɑːðə(r)/',
+                        meaning: 'n. 父亲',
+                        exams: [],
+                        example: 'My father is a teacher.'
+                    },
+                    'centre': {
+                        phonetic: '/ˈsentə(r)/',
+                        meaning: 'n. 中心，中央',
+                        exams: [],
+                        example: 'The city centre is very busy.'
+                    },
+                    'force': {
+                        phonetic: '/fɔːs/',
+                        meaning: 'n. 力量，武力',
+                        exams: [],
+                        example: 'The police force is well-trained.'
+                    },
+                    'education': {
+                        phonetic: '/ˌedʒuˈkeɪʃn/',
+                        meaning: 'n. 教育',
+                        exams: [],
+                        example: 'Education is very important.'
+                    },
+                    'care': {
+                        phonetic: '/keə(r)/',
+                        meaning: 'n. 关心，照顾',
+                        exams: [],
+                        example: 'Take care of yourself.'
+                    },
+                    'research': {
+                        phonetic: '/rɪˈsɜːtʃ/',
+                        meaning: 'n. 研究，调查',
+                        exams: [],
+                        example: 'He is doing research on cancer.'
+                    },
+                    'approach': {
+                        phonetic: '/əˈprəʊtʃ/',
+                        meaning: 'v. 接近，处理',
+                        exams: ['cet6'],
+                        example: 'We need to approach this problem differently.'
+                    },
+                    'available': {
+                        phonetic: '/əˈveɪləbl/',
+                        meaning: 'adj. 可用的，可获得的',
+                        exams: ['cet6'],
+                        example: 'The information is available online.'
+                    },
+                    'benefit': {
+                        phonetic: '/ˈbenɪfɪt/',
+                        meaning: 'n. 好处，利益',
+                        exams: ['cet6'],
+                        example: 'The new policy will benefit everyone.'
+                    },
+                    'challenge': {
+                        phonetic: '/ˈtʃælɪndʒ/',
+                        meaning: 'n. 挑战，难题',
+                        exams: ['cet6'],
+                        example: 'This is a great challenge for us.'
+                    },
+                    'develop': {
+                        phonetic: '/dɪˈveləp/',
+                        meaning: 'v. 发展，开发',
+                        exams: ['cet6'],
+                        example: 'We need to develop new skills.'
+                    },
+                    'environment': {
+                        phonetic: '/ɪnˈvaɪrənmənt/',
+                        meaning: 'n. 环境',
+                        exams: ['cet6'],
+                        example: 'We must protect the environment.'
+                    },
+                    'experience': {
+                        phonetic: '/ɪkˈspɪəriəns/',
+                        meaning: 'n. 经验，经历',
+                        exams: ['cet6'],
+                        example: 'She has a lot of experience in teaching.'
+                    },
+                    'function': {
+                        phonetic: '/ˈfʌŋkʃn/',
+                        meaning: 'n. 功能，作用',
+                        exams: ['cet6'],
+                        example: 'This function is very useful.'
+                    },
+                    'generate': {
+                        phonetic: '/ˈdʒenəreɪt/',
+                        meaning: 'v. 产生，生成',
+                        exams: ['cet6'],
+                        example: 'The machine can generate electricity.'
+                    },
+                    'identify': {
+                        phonetic: '/aɪˈdentɪfaɪ/',
+                        meaning: 'v. 识别，确认',
+                        exams: ['cet6'],
+                        example: 'Can you identify this person?'
+                    },
+                    'implement': {
+                        phonetic: '/ˈɪmplɪment/',
+                        meaning: 'v. 实施，执行',
+                        exams: ['cet6'],
+                        example: 'We will implement this plan next month.'
+                    },
+                    'indicate': {
+                        phonetic: '/ˈɪndɪkeɪt/',
+                        meaning: 'v. 指示，表明',
+                        exams: ['cet6'],
+                        example: 'The signs indicate the way to go.'
+                    },
+                    'maintain': {
+                        phonetic: '/meɪnˈteɪn/',
+                        meaning: 'v. 维持，保持',
+                        exams: ['cet6'],
+                        example: 'We must maintain good relationships.'
+                    },
+                    'obtain': {
+                        phonetic: '/əbˈteɪn/',
+                        meaning: 'v. 获得，得到',
+                        exams: ['cet6'],
+                        example: 'He obtained permission to leave early.'
+                    },
+                    'participate': {
+                        phonetic: '/pɑːˈtɪsɪpeɪt/',
+                        meaning: 'v. 参与，参加',
+                        exams: ['cet6'],
+                        example: 'Everyone can participate in this activity.'
+                    },
+                    'potential': {
+                        phonetic: '/pəˈtenʃl/',
+                        meaning: 'adj. 潜在的，可能的',
+                        exams: ['cet6'],
+                        example: 'He has great potential for success.'
+                    },
+                    'previous': {
+                        phonetic: '/ˈpriːviəs/',
+                        meaning: 'adj. 以前的，先前的',
+                        exams: ['cet6'],
+                        example: 'In the previous chapter, we discussed...'
+                    },
+                    'require': {
+                        phonetic: '/rɪˈkwaɪə(r)/',
+                        meaning: 'v. 需要，要求',
+                        exams: ['cet6'],
+                        example: 'This job requires experience.'
+                    },
+                    'significant': {
+                        phonetic: '/sɪɡˈnɪfɪkənt/',
+                        meaning: 'adj. 重要的，显著的',
+                        exams: ['cet6'],
+                        example: 'This is a significant discovery.'
+                    },
+                    'specific': {
+                        phonetic: '/spəˈsɪfɪk/',
+                        meaning: 'adj. 具体的，特定的',
+                        exams: ['cet6'],
+                        example: 'Please give me specific instructions.'
+                    },
+                    'structure': {
+                        phonetic: '/ˈstrʌktʃə(r)/',
+                        meaning: 'n. 结构，构造',
+                        exams: ['cet6'],
+                        example: 'The structure of this building is complex.'
+                    },
+                    'technology': {
+                        phonetic: '/tekˈnɒlədʒi/',
+                        meaning: 'n. 技术，科技',
+                        exams: ['cet6'],
+                        example: 'Modern technology is amazing.'
+                    },
+                    'traditional': {
+                        phonetic: '/trəˈdɪʃənl/',
+                        meaning: 'adj. 传统的，惯例的',
+                        exams: ['cet6'],
+                        example: 'This is a traditional method.'
+                    },
+                    'understand': {
+                        phonetic: '/ˌʌndəˈstænd/',
+                        meaning: 'v. 理解，明白',
+                        exams: ['cet6'],
+                        example: 'I understand your point.'
+                    },
+                    'various': {
+                        phonetic: '/ˈveəriəs/',
+                        meaning: 'adj. 各种各样的',
+                        exams: ['cet6'],
+                        example: 'There are various options available.'
+                    },
+                    'welfare': {
+                        phonetic: '/ˈwelfeə(r)/',
+                        meaning: 'n. 福利，福祉',
+                        exams: ['cet6'],
+                        example: 'The government cares about people\'s welfare.'
+                    }
+                };
+                
+                console.log('词典数据初始化完成，共加载', Object.keys(wordDictionary).length, '个单词');
+            }
+            
+            // 初始化考试词汇列表
+            function initializeExamWordLists() {
+                // 从词典中提取考试词汇
+                Object.keys(wordDictionary).forEach(word => {
+                    const wordInfo = wordDictionary[word];
+                    if (wordInfo.exams && wordInfo.exams.length > 0) {
+                        wordInfo.exams.forEach(exam => {
+                            if (examWordLists[exam]) {
+                                examWordLists[exam].add(word);
+                            }
+                        });
+                    }
+                });
+                
+                console.log('考试词汇列表初始化完成');
+                console.log('四级词汇:', examWordLists.cet4.size, '个');
+                console.log('六级词汇:', examWordLists.cet6.size, '个');
+                console.log('八级词汇:', examWordLists.cet8.size, '个');
+                console.log('雅思词汇:', examWordLists.ielts.size, '个');
+                console.log('托福词汇:', examWordLists.toefl.size, '个');
+                console.log('GRE词汇:', examWordLists.gre.size, '个');
+                console.log('高考词汇:', examWordLists.gaokao.size, '个');
+                console.log('考研词汇:', examWordLists.kaoyan.size, '个');
+            }
+            
+            // 处理字幕文本，使单词可点击
+            function makeWordsClickable(element) {
+                if (!element || !element.textContent) return;
+                
+                const text = element.textContent;
+                // 改进的单词分割，处理标点符号
+                const words = text.split(/\s+/);
+                
+                element.innerHTML = words.map(word => {
+                    // 保留原始单词用于显示
+                    const originalWord = word;
+                    // 清理单词用于查找
+                    const cleanWord = word.replace(/[^\w]/g, '').toLowerCase();
+                    
+                    if (cleanWord && cleanWord.length > 0 && wordDictionary[cleanWord]) {
+                        return `<span class="word-clickable" data-word="${cleanWord}">${originalWord}</span>`;
+                    }
+                    return originalWord;
+                }).join(' ');
+                
+                // 为可点击单词添加事件监听器
+                const clickableWords = element.querySelectorAll('.word-clickable');
+                clickableWords.forEach(wordSpan => {
+                    // 移除之前的事件监听器（如果有）
+                    wordSpan.removeEventListener('click', handleWordClick);
+                    wordSpan.removeEventListener('touchstart', handleWordTouchStart);
+                    wordSpan.removeEventListener('touchend', handleWordTouchEnd);
+                    
+                    // 添加新的事件监听器
+                    wordSpan.addEventListener('click', handleWordClick);
+                    wordSpan.addEventListener('touchstart', handleWordTouchStart, { passive: false });
+                    wordSpan.addEventListener('touchend', handleWordTouchEnd, { passive: false });
+                });
+            }
+            
+            // 单词点击处理函数
+            function handleWordClick(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                const word = this.dataset.word;
+                if (word) {
+                    showWordPopup(word, e);
+                }
+            }
+            
+            // 单词触摸开始处理函数
+            function handleWordTouchStart(e) {
+                e.preventDefault();
+                this.classList.add('clicked');
+            }
+            
+            // 单词触摸结束处理函数
+            function handleWordTouchEnd(e) {
+                e.preventDefault();
+                this.classList.remove('clicked');
+                
+                const word = this.dataset.word;
+                if (word) {
+                    showWordPopup(word, e);
+                }
+            }
+            
+            // 显示单词弹窗
+            function showWordPopup(word, event) {
+                console.log('尝试显示单词弹窗:', word);
+                
+                const wordInfo = wordDictionary[word];
+                if (!wordInfo) {
+                    console.log('未找到单词:', word);
+                    // 显示默认信息
+                    popupWord.textContent = word;
+                    popupPhonetic.textContent = '暂无音标';
+                    popupMeaning.textContent = '暂无释义';
+                    popupExamTags.innerHTML = '';
+                    popupExample.style.display = 'none';
+                    
+                    // 定位并显示弹窗
+                    positionPopup(event);
+                    wordPopup.classList.add('show');
+                    currentClickedWord = word;
+                    return;
+                }
+                
+                // 清除之前的超时
+                if (popupTimeout) {
+                    clearTimeout(popupTimeout);
+                }
+                
+                // 更新弹窗内容
+                popupWord.textContent = word;
+                popupPhonetic.textContent = wordInfo.phonetic || '暂无音标';
+                popupMeaning.textContent = wordInfo.meaning || '暂无释义';
+                
+                // 更新考试标签
+                popupExamTags.innerHTML = '';
+                if (wordInfo.exams && wordInfo.exams.length > 0) {
+                    wordInfo.exams.forEach(exam => {
+                        const tag = document.createElement('span');
+                        tag.className = `exam-tag ${exam}`;
+                        tag.textContent = exam.toUpperCase();
+                        popupExamTags.appendChild(tag);
+                    });
+                }
+                
+                // 显示例句
+                if (wordInfo.example) {
+                    popupExample.style.display = 'block';
+                    popupExampleText.textContent = wordInfo.example;
+                } else {
+                    popupExample.style.display = 'none';
+                }
+                
+                // 定位弹窗
+                positionPopup(event);
+                
+                // 显示弹窗
+                wordPopup.classList.add('show');
+                currentClickedWord = word;
+                
+                console.log('显示单词弹窗:', word, wordInfo);
+            }
+            
+            // 隐藏单词弹窗
+            function hideWordPopup() {
+                wordPopup.classList.remove('show');
+                currentClickedWord = null;
+                
+                if (popupTimeout) {
+                    clearTimeout(popupTimeout);
+                }
+            }
+            
+            // 定位弹窗
+            function positionPopup(event) {
+                const popup = wordPopup;
+                const rect = popup.getBoundingClientRect();
+                const windowWidth = window.innerWidth;
+                const windowHeight = window.innerHeight;
+                
+                let x, y;
+                
+                if (event) {
+                    // 基于点击位置定位
+                    x = event.clientX;
+                    y = event.clientY;
+                } else {
+                    // 默认位置
+                    x = windowWidth / 2;
+                    y = windowHeight / 2;
+                }
+                
+                // 确保弹窗不超出屏幕边界
+                const popupWidth = 350;
+                const popupHeight = 200;
+                
+                if (x + popupWidth > windowWidth) {
+                    x = windowWidth - popupWidth - 20;
+                }
+                
+                if (y + popupHeight > windowHeight) {
+                    y = windowHeight - popupHeight - 20;
+                }
+                
+                if (x < 20) x = 20;
+                if (y < 20) y = 20;
+                
+                popup.style.left = x + 'px';
+                popup.style.top = y + 'px';
+            }
+            
+            // 修改updateSubtitles函数，使单词可点击
+            function updateSubtitles() {
+                if (subtitles.length === 0) {
+                    englishSub.textContent = "";
+                    chineseSub.textContent = "";
+                    return;
+                }
+                
+                const currentSub = subtitles[currentSubIndex];
+                
+                // 显示完整字幕，不截断
+                englishSub.textContent = currentSub.eng;
+                chineseSub.textContent = currentSub.chi;
+                
+                // 确保字幕顺序正确
+                englishSub.style.order = '1 !important';
+                chineseSub.style.order = '2 !important';
+                
+                // 确保字幕容器可以显示完整内容
+                const subtitleContainer = document.getElementById('subtitleContainer');
+                if (subtitleContainer) {
+                    subtitleContainer.style.overflow = 'visible';
+                    subtitleContainer.style.maxHeight = 'none';
+                    subtitleContainer.style.display = 'flex';
+                    subtitleContainer.style.flexDirection = 'column';
+                    subtitleContainer.style.alignItems = 'center';
+                    subtitleContainer.style.justifyContent = 'flex-end';
+                }
+                
+                // 确保字幕元素可以显示完整内容
+                englishSub.style.overflow = 'visible';
+                englishSub.style.maxHeight = 'none';
+                englishSub.style.textOverflow = 'clip';
+                chineseSub.style.overflow = 'visible';
+                chineseSub.style.maxHeight = 'none';
+                chineseSub.style.textOverflow = 'clip';
+                
+                // 使英文字幕中的单词可点击
+                makeWordsClickable(englishSub);
+                
+                // 添加字幕动画
+                englishSub.style.transform = 'scale(1.05)';
+                chineseSub.style.transform = 'scale(1.05)';
+                setTimeout(() => {
+                    englishSub.style.transform = 'scale(1)';
+                    chineseSub.style.transform = 'scale(1)';
+                }, 300);
+                
+                // 重新调整字幕大小
+                adjustSubtitleSize();
+                
+                // 检查并确保字幕不超出边界
+                ensureSubtitleBoundaries();
+                
+                console.log('字幕更新完成，当前字幕:', currentSub.eng);
+            }
+            
+            // 确保字幕不超出边界的函数
+            function ensureSubtitleBoundaries() {
+                const videoContainer = document.querySelector('.video-container');
+                const subtitleContainer = document.getElementById('subtitleContainer');
+                const englishSub = document.getElementById('englishSub');
+                const chineseSub = document.getElementById('chineseSub');
+                
+                if (!videoContainer || !subtitleContainer || !englishSub || !chineseSub) return;
+                
+                const videoRect = videoContainer.getBoundingClientRect();
+                const subtitleRect = subtitleContainer.getBoundingClientRect();
+                
+                // 确保字幕容器始终在视频容器内
+                subtitleContainer.style.left = '0';
+                subtitleContainer.style.right = '0';
+                subtitleContainer.style.bottom = '3px';
+                subtitleContainer.style.width = '100%';
+                
+                // 确保字幕文本不超出容器，但允许完整显示
+                const maxWidth = Math.min(videoRect.width * 0.95, 95);
+                englishSub.style.maxWidth = maxWidth + '%';
+                chineseSub.style.maxWidth = maxWidth + '%';
+                
+                // 确保字幕容器可以显示完整内容
+                subtitleContainer.style.overflow = 'visible';
+                subtitleContainer.style.maxHeight = 'none';
+                subtitleContainer.style.display = 'flex';
+                subtitleContainer.style.flexDirection = 'column';
+                subtitleContainer.style.alignItems = 'center';
+                subtitleContainer.style.justifyContent = 'flex-end';
+                
+                // 确保字幕元素可以显示完整内容
+                englishSub.style.overflow = 'visible';
+                englishSub.style.maxHeight = 'none';
+                englishSub.style.textOverflow = 'clip';
+                chineseSub.style.overflow = 'visible';
+                chineseSub.style.maxHeight = 'none';
+                chineseSub.style.textOverflow = 'clip';
+                
+                console.log('字幕边界已调整，确保完整显示');
+            }
+        });
+    </script>
+</body>
+</html>
